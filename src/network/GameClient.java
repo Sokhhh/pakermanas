@@ -1,41 +1,41 @@
 package network;
 
-import java.io.*;
-import java.net.*;
 import entities.Ghost;
 
+import java.io.*;
+import java.net.*;
+
 public class GameClient {
-    private Socket socket;
+    private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-
     private Ghost ghost;
 
     public GameClient(Ghost ghost) {
         this.ghost = ghost;
     }
 
-    public void start(String ip, int port) throws IOException {
-        socket = new Socket(ip, port);
+    public void start(String host, int port) throws IOException {
+        clientSocket = new Socket(host, port);
         System.out.println("Connected to server!");
 
-        out = new PrintWriter(socket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-        new Thread(this::listenToServer).start();  // Listen for Pac-Man's position updates
+        new Thread(this::listenToServer).start();  // Listen for Pac-Man's position from the server
     }
 
     private void listenToServer() {
         String inputLine;
         try {
             while ((inputLine = in.readLine()) != null) {
-                // Parse Pac-Man movement from server and update accordingly
+                // Synchronize Pac-Man movement from server
                 String[] position = inputLine.split(",");
-                int pacmanX = Integer.parseInt(position[0]);
-                int pacmanY = Integer.parseInt(position[1]);
+                int pacX = Integer.parseInt(position[0]);
+                int pacY = Integer.parseInt(position[1]);
 
-                // You can update Pac-Man's position on the client side if needed
-                System.out.println("Pac-Man moved to: " + pacmanX + ", " + pacmanY);
+                // Update Pac-Man position on client
+                // Synchronize the local Pac-Man position with the server's position
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,13 +43,16 @@ public class GameClient {
     }
 
     public void sendGhostPosition(int x, int y) {
-        // Send ghost's position to the server
-        out.println(x + "," + y);
+        if (out != null) {
+            out.println(x + "," + y);  // Send the ghost's position to the server
+        }
     }
 
-    public void stop() throws IOException {
-        in.close();
-        out.close();
-        socket.close();
+    public void stop() {
+        try {
+            if (clientSocket != null) clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

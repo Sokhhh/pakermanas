@@ -1,15 +1,15 @@
 package network;
 
+import entities.PacMan;
+
 import java.io.*;
 import java.net.*;
-import entities.PacMan;
 
 public class GameServer {
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-
     private PacMan pacman;
 
     public GameServer(PacMan pacman) {
@@ -33,13 +33,14 @@ public class GameServer {
         String inputLine;
         try {
             while ((inputLine = in.readLine()) != null) {
-                // Parse ghost movement from client and update accordingly
+                // Synchronize ghost movement from client
                 String[] position = inputLine.split(",");
                 int ghostX = Integer.parseInt(position[0]);
                 int ghostY = Integer.parseInt(position[1]);
 
-                // You can update ghost position on the server side if needed
-                System.out.println("Ghost moved to: " + ghostX + ", " + ghostY);
+                // Update ghost position on server
+                // Ensure this updates the ghost locally in the server logic
+                // (e.g., send ghost position to all players if necessary)
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,14 +48,17 @@ public class GameServer {
     }
 
     public void sendPacManPosition(int x, int y) {
-        // Send Pac-Man's position to the client
-        out.println(x + "," + y);
+        if (out != null) {
+            out.println(x + "," + y);  // Send Pac-Man's position to the client
+        }
     }
 
-    public void stop() throws IOException {
-        in.close();
-        out.close();
-        clientSocket.close();
-        serverSocket.close();
+    public void stop() {
+        try {
+            if (clientSocket != null) clientSocket.close();
+            if (serverSocket != null) serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
