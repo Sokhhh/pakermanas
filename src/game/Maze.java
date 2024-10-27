@@ -38,48 +38,14 @@ public class Maze {
                 {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
         };
     }
-
-    private void generateMaze() {
-        // Initialize grid with open spaces
-        for (int i = 0; i < 30; i++) {
-            for (int j = 0; j < 30; j++) {
-                if (i == 0 || j == 0 || i == 29 || j == 29) {
-                    grid[i][j] = '#';  // Outer walls
-                } else {
-                    grid[i][j] = '.';  // Pellets (dots)
-                }
-            }
-        }
-
-        // Add internal walls to create a maze-like structure
-        // Horizontal walls
-        for (int i = 2; i < 28; i += 4) {
-            for (int j = 2; j < 28; j++) {
-                if (j % 4 != 0) {
-                    grid[i][j] = '#';  // Horizontal walls
-                }
-            }
-        }
-
-        // Vertical walls
-        for (int j = 4; j < 26; j += 4) {
-            for (int i = 3; i < 27; i++) {
-                if (i % 4 != 0) {
-                    grid[i][j] = '#';  // Vertical walls
-                }
-            }
-        }
-
-        // Create open pathways
-        grid[1][1] = '.';  // Pac-Man start position open
-        grid[28][28] = '.';  // Ghost start position open
-
-        // Ensure some open spaces for movement
-        grid[15][15] = '.';  // Central area
-        grid[5][5] = '.';  // Open area for variety
-        grid[10][10] = '.';  // Another open spot
-        grid[20][20] = '.';  // Open spot near bottom-right
+    public Maze(char[][] grid) {
+        this.grid = grid;
     }
+
+    public char[][] getGrid() {
+        return grid;
+    }
+
 
     public void render(Graphics g) {
         g.setColor(Color.BLACK);

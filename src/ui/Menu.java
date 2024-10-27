@@ -15,15 +15,35 @@ public class Menu {
         // Action for single-player button
         singlePlayerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Game game = new Game(false, false);  // false for singleplayer, not a server
-                JFrame gameFrame = new JFrame("Pac-Man Game");
-                gameFrame.add(game);
-                gameFrame.setSize(600, 600);
-                gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                gameFrame.setVisible(true);
-                gameFrame.setResizable(true);
-                frame.dispose(); // Close the menu frame
+                // Add "Default Map" as an option for maze selection
+                String[] mazeOptions = {"Default Map", "Maze1", "Maze2"};
+                String selectedMaze = (String) JOptionPane.showInputDialog(
+                        frame,
+                        "Select a Maze:",
+                        "Maze Selection",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        mazeOptions,
+                        mazeOptions[0]  // Default selection
+                );
 
+                // Check if a maze was selected (not null)
+                if (selectedMaze != null) {
+                    Game game;
+                    if (selectedMaze.equals("Default Map")) {
+                        game = new Game(false, false);;  // Use default constructor for the default map
+                    } else {
+                        game = new Game(selectedMaze);  // Pass the selected maze type to the Game class
+                    }
+
+                    JFrame gameFrame = new JFrame("Pac-Man Game - " + selectedMaze);
+                    gameFrame.add(game);
+                    gameFrame.setSize(600, 600);
+                    gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    gameFrame.setVisible(true);
+                    gameFrame.setResizable(true);
+                    frame.dispose(); // Close the menu frame
+                }
             }
         });
 
@@ -37,6 +57,7 @@ public class Menu {
                 gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 gameFrame.setVisible(true);
                 gameFrame.setResizable(true);
+                frame.dispose(); // Close the menu frame
             }
         });
 

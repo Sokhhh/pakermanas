@@ -1,5 +1,9 @@
 package game;
 
+import BuilderPattern.Maze1Builder;
+import BuilderPattern.Maze2Builder;
+import BuilderPattern.MazeBuilder;
+import BuilderPattern.MazeDirector;
 import entities.GhostCPU;
 import entities.PacMan;
 import entities.Ghost;
@@ -90,6 +94,29 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
 
         }
+
+        setFocusable(true);
+        addKeyListener(this);
+
+        timer = new Timer(100, this);
+        timer.start();
+    }
+    // Constructor for single-player with selected maze type
+    public Game(String mazeType) {
+        MazeBuilder builder;
+        if (mazeType.equals("Maze1")) {
+            builder = new Maze1Builder();
+        } else {
+            builder = new Maze2Builder();
+        }
+
+        MazeDirector director = new MazeDirector(builder);
+        this.maze = director.constructMaze();  // Build and retrieve the maze
+
+        this.pacman = new PacMan(11, 21);  // Initialize Pac-Man at starting position
+        ghosts.add(new GhostCPU(11,10));
+        ghosts.add(new GhostCPU(11,11));
+        ghosts.add(new GhostCPU(11,12));
 
         setFocusable(true);
         addKeyListener(this);
