@@ -102,10 +102,14 @@ public class Maze {
         return grid[y][x] == '#';
     }
 
-    public void eatPellet(int x, int y) {
+    public boolean eatPellet(int x, int y) {
         if (grid[y][x] == '.') {
             grid[y][x] = ' ';  // Pac-Man eats the pellet
+
+            return true;// Indicate that a pellet was eaten
         }
+
+        return false;// No pellet eaten
     }
 
     public boolean allPelletsCollected() {

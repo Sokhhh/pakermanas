@@ -22,6 +22,8 @@ public class Menu {
                 gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 gameFrame.setVisible(true);
                 gameFrame.setResizable(true);
+                frame.dispose(); // Close the menu frame
+
             }
         });
 

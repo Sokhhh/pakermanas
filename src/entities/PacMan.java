@@ -1,6 +1,7 @@
 package entities;
 
 import game.Maze;
+import game.ScoreCounterSingleton;
 import java.awt.*;
 
 public class PacMan {
@@ -22,16 +23,21 @@ public class PacMan {
     }
 
     public void move(Maze maze) {
-        int newX = x + dx;
-        int newY = y + dy;
+        int newX = x + dx;  // Calculate new X position
+        int newY = y + dy;  // Calculate new Y position
 
         // Ensure that Pac-Man doesn't move into walls
         if (!maze.isWall(newX, newY)) {
-            x = newX;
-            y = newY;
-            maze.eatPellet(x, y);
+            x = newX;  // Update Pac-Man's X position
+            y = newY;  // Update Pac-Man's Y position
 
+            // Check if Pac-Man is on a pellet and eat it
+            if (maze.eatPellet(x, y)) {
+                ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance(); // Get the ScoreCounter instance
+                scoreCounter.addScore(1);  // Increment score by 1 when a pellet is eaten
+            }
 
+            // Manage mouth animation
             if (mouthOpening) {
                 mouthAngle += 5;  // Open the mouth
                 if (mouthAngle >= 45) mouthOpening = false;  // Switch direction when fully open
@@ -41,6 +47,8 @@ public class PacMan {
             }
         }
     }
+
+
 
     public void render(Graphics g) {
         g.setColor(Color.YELLOW);  // Pac-Man color

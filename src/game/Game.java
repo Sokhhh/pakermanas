@@ -31,6 +31,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
+    // Score display
 
     public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
         this.isMultiplayer = isMultiplayer;
@@ -40,6 +41,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         this.maze = new Maze();  // Generate the maze
         this.serverIP = serverIP;
+
+        // Initialize ScoreCounterSingleton
+        ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
+        scoreCounter.resetScore(); // Reset score at the start of the game
+
+        // Set up the JPanel layout
+        this.setLayout(new BorderLayout());
+
 
         if (isMultiplayer) {
             if (isServer) {
@@ -177,6 +186,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         pacman.move(maze);  // Move Pac-Man based on the current direction
+
         for (Ghost ghost : ghosts) {
             ghost.move(maze, pacman);
         }
@@ -201,6 +211,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
         checkCollision();
         checkWinCondition();
+
+        // Draw the score in the top right corner
+        ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
+        g.setColor(Color.WHITE);  // Set text color
+        g.setFont(new Font("Arial", Font.BOLD, 20));  // Set font
+        String scoreText = "Score: " + scoreCounter.getScore();
+        FontMetrics metrics = g.getFontMetrics();
+        int x = getWidth() - metrics.stringWidth(scoreText) - 10; // 10 pixels from the right
+        int y = metrics.getHeight(); // Height of the font
+        g.drawString(scoreText, x, y);  // Draw score
     }
 
     @Override
@@ -229,7 +249,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (ghost.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
                 timer.stop(); // Stop the game loop
-                GameOverScreen.display("Game Over! Pac-Man was caught.");
+                ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
+                GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;
             }
         }
@@ -238,7 +259,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private void checkWinCondition() {
         if (maze.allPelletsCollected()) {
             timer.stop(); // Stop the game loop
-            GameOverScreen.display("You Win! All pellets collected.");
+            ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
+            GameOverScreen.display("You Win! All pellets collected. Your score: " + scoreCounter.getScore());
         }
     }
 
