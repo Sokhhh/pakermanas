@@ -4,6 +4,8 @@ import BuilderPattern.Maze1Builder;
 import BuilderPattern.Maze2Builder;
 import BuilderPattern.MazeBuilder;
 import BuilderPattern.MazeDirector;
+import Factory.Vaiduoklis;
+import Factory.VaiduoklisFactory;
 import entities.GhostCPU;
 import entities.PacMan;
 import entities.Ghost;
@@ -36,6 +38,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private PrintWriter out;
     private BufferedReader in;
     // Score display
+
+    VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
+    Vaiduoklis aggressiveGhost = vaiduoklisFactory.createVaiduoklis("Aggressive", 10, 10);
+    Vaiduoklis randomGhost = vaiduoklisFactory.createVaiduoklis("Random", 5, 5);
+    Vaiduoklis cautiousGhost = vaiduoklisFactory.createVaiduoklis("Cautious", 15, 15);
+    private List<Vaiduoklis> vaiduoklis = new ArrayList<>();
 
     public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
         this.isMultiplayer = isMultiplayer;
@@ -88,10 +96,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
         else {
             //this.ghost = new GhostCPU(28,28);
-            ghosts.add(new GhostCPU(11,10));
-            ghosts.add(new GhostCPU(11,11));
-            ghosts.add(new GhostCPU(11,12));
-
+//            ghosts.add(new GhostCPU(11,10));
+//            ghosts.add(new GhostCPU(11,11));
+//            ghosts.add(new GhostCPU(11,12));
+            vaiduoklis.add(aggressiveGhost);
+            vaiduoklis.add(randomGhost);
+            vaiduoklis.add(cautiousGhost);
 
         }
 
@@ -217,6 +227,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         for (Ghost ghost : ghosts) {
             ghost.move(maze, pacman);
         }
+        for (Vaiduoklis vaiduoklis : vaiduoklis) {
+            vaiduoklis.move(maze, pacman);
+        }
 
         if (isMultiplayer) {
             if (isServer) {
@@ -235,6 +248,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         pacman.render(g);  // Draw Pac-Man
         for (Ghost ghost : ghosts) {
             ghost.render(g);
+        }
+        for (Vaiduoklis vaiduoklis : vaiduoklis) {
+            vaiduoklis.render(g);
         }
         checkCollision();
         checkWinCondition();
@@ -274,6 +290,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private void checkCollision() {
         for (Ghost ghost : ghosts) {
             if (ghost.collidesWith(pacman)) {
+                System.out.println("Game Over! Pac-Man has been caught by the ghost.");
+                timer.stop(); // Stop the game loop
+                ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
+                GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
+                break;
+            }
+        }
+        for (Vaiduoklis vaiduoklis : vaiduoklis) {
+            if (vaiduoklis.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
                 timer.stop(); // Stop the game loop
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
