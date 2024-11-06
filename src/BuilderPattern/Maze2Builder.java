@@ -17,14 +17,14 @@ public class Maze2Builder implements MazeBuilder {
         // Set the outer boundary walls correctly within bounds
         for (int i = 1; i < 22; i++) {
             grid[0][i] = '#';       // Top wall
-            grid[24][i] = '#';      // Bottom wall (last row within bounds)
+            grid[22][i] = '#';      // Bottom wall (last row within bounds)
             grid[i][0] = '#';       // Left wall
-            grid[i][24] = '#';      // Right wall (last column within bounds)
+            grid[i][22] = '#';      // Right wall (last column within bounds)
         }
 
         // Fill inner area with empty spaces initially
-        for (int i = 1; i < 24; i++) {
-            for (int j = 1; j < 24; j++) {
+        for (int i = 1; i < 22; i++) {
+            for (int j = 1; j < 22; j++) {
                 grid[i][j] = ' ';
             }
         }
@@ -57,10 +57,10 @@ public class Maze2Builder implements MazeBuilder {
         addHorizontalWall(16, 14, 5);
         addHorizontalWall(16, 20, 3);
 
-        addVerticalWall(18, 2, 3);
-        addVerticalWall(18, 8, 3);
-        addVerticalWall(18, 14, 3);
-        addVerticalWall(18, 20, 3);
+        addVerticalWall(17, 2, 3);
+        addVerticalWall(17, 8, 3);
+        addVerticalWall(17, 14, 3);
+        addVerticalWall(17, 20, 3);
     }
 
     @Override
@@ -87,6 +87,7 @@ public class Maze2Builder implements MazeBuilder {
 
     // Helper methods to add walls
     private void addHorizontalWall(int row, int colStart, int length) {
+
         for (int i = 0; i < length; i++) {
             grid[row][colStart + i] = '#';
         }
