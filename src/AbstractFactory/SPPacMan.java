@@ -1,17 +1,17 @@
-package entities;
+package AbstractFactory;
 
-import AbstractFactory.IPacMan;
 import game.Maze;
 import game.ScoreCounterSingleton;
+
 import java.awt.*;
 
-public class PacMan implements IPacMan {
+public class SPPacMan implements IPacMan {
     private int x, y;
     private int dx, dy;  // Direction in x and y axis
     private int mouthAngle = 45;  // Starting mouth angle for animation
     private boolean mouthOpening = false;  // Controls mouth animation
 
-    public PacMan(int startX, int startY) {
+    public SPPacMan(int startX, int startY) {
         this.x = startX;
         this.y = startY;
         this.dx = 0;
@@ -23,6 +23,7 @@ public class PacMan implements IPacMan {
         this.dy = dy;
     }
 
+    @Override
     public void move(Maze maze) {
         int newX = x + dx;  // Calculate new X position
         int newY = y + dy;  // Calculate new Y position

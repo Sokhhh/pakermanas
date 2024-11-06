@@ -13,6 +13,10 @@ import network.GameServer;
 import network.GameClient;
 import ui.GameOverScreen;
 
+//Deivio
+import Command.*;
+import AbstractFactory.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -22,12 +26,16 @@ import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
     private Timer timer;
-    private PacMan pacman;
+    private IPacMan pacman;
     private List<Ghost> ghosts = new ArrayList<>();  // List of ghosts (multiple ghosts)
     private Maze maze;
+
+    private Map<Integer, Command> commandMap = new HashMap<>();
 
     private boolean isMultiplayer;
     private boolean isServer;
@@ -39,17 +47,22 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private BufferedReader in;
     // Score display
 
-    VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
-    Vaiduoklis aggressiveGhost = vaiduoklisFactory.createVaiduoklis("Aggressive", 10, 10);
-    Vaiduoklis randomGhost = vaiduoklisFactory.createVaiduoklis("Random", 5, 5);
-    Vaiduoklis cautiousGhost = vaiduoklisFactory.createVaiduoklis("Cautious", 15, 15);
+    private AbstractEntityFactory entityFactory;
+
+    //VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
+    //Vaiduoklis aggressiveGhost = vaiduoklisFactory.createVaiduoklis("Aggressive", 10, 10);
+    //Vaiduoklis randomGhost = vaiduoklisFactory.createVaiduoklis("Random", 5, 5);
+    //Vaiduoklis cautiousGhost = vaiduoklisFactory.createVaiduoklis("Cautious", 15, 15);
     private List<Vaiduoklis> vaiduoklis = new ArrayList<>();
 
     public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
-        this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
-        ghosts.add(new Ghost(11,11));  // List of ghosts (multiple ghosts)
+        //this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
+        //ghosts.add(new Ghost(11,11));  // List of ghosts (multiple ghosts)
+        this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
+        this.pacman = entityFactory.createPacMan(11,21);
+        //this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
 
         this.maze = new Maze();  // Generate the maze
         this.serverIP = serverIP;
@@ -57,6 +70,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // Initialize ScoreCounterSingleton
         ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
         scoreCounter.resetScore(); // Reset score at the start of the game
+
+        initializeCommands();
+        initializeGhosts();
 
         // Set up the JPanel layout
         this.setLayout(new BorderLayout());
@@ -70,7 +86,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             }
         }
         else {
-            ghosts.add(new GhostCPU(11,11));
+            //ghosts.add(new GhostCPU(11,11));
         }
 
         setFocusable(true);
@@ -83,11 +99,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public Game(boolean isMultiplayer, boolean isServer) {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
-        this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
+        this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
+        this.pacman = entityFactory.createPacMan(11,21);
+        //this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
         this.maze = new Maze();  // Generate the maze
 
+        initializeCommands();
+        initializeGhosts();
+
         if (isMultiplayer) {
-            ghosts.add(new Ghost(11,11));
+            //ghosts.add(new Ghost(11,11));
             if (isServer) {
                 startServer();
             } else {
@@ -99,9 +120,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 //            ghosts.add(new GhostCPU(11,10));
 //            ghosts.add(new GhostCPU(11,11));
 //            ghosts.add(new GhostCPU(11,12));
-            vaiduoklis.add(aggressiveGhost);
-            vaiduoklis.add(randomGhost);
-            vaiduoklis.add(cautiousGhost);
+            //vaiduoklis.add(aggressiveGhost);
+            //vaiduoklis.add(randomGhost);
+            //vaiduoklis.add(cautiousGhost);
 
         }
 
@@ -133,6 +154,24 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         timer = new Timer(100, this);
         timer.start();
+    }
+
+    private void initializeGhosts() {
+        // Add ghosts based on factory method
+        if (isMultiplayer) {
+            vaiduoklis.add(entityFactory.createVaiduoklis("Zaidejas", 11, 10));
+        } else {
+            vaiduoklis.add(entityFactory.createVaiduoklis("Aggressive", 11, 10));
+            vaiduoklis.add(entityFactory.createVaiduoklis("Random", 11, 11));
+            vaiduoklis.add(entityFactory.createVaiduoklis("Cautious", 11, 12));
+        }
+    }
+
+    private void initializeCommands() {
+        commandMap.put(KeyEvent.VK_W, new MoveUpCommand(pacman));      // Up
+        commandMap.put(KeyEvent.VK_S, new MoveDownCommand(pacman));    // Down
+        commandMap.put(KeyEvent.VK_A, new MoveLeftCommand(pacman));    // Left
+        commandMap.put(KeyEvent.VK_D, new MoveRightCommand(pacman));   // Right
     }
 
     // Multiplayer - Server Side (Host)
@@ -180,6 +219,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                     ghosts.get(0).setPosition(ghostX, ghostY);  // Update first ghost's position
                 }
 
+                if (!vaiduoklis.isEmpty()) {
+                    vaiduoklis.get(0).setPosition(ghostX, ghostY);  // Update first ghost's position
+                }
+
                 repaint();
             }
         } catch (IOException e) {
@@ -215,7 +258,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     // Send Ghost's position (from client to host)
     private void sendGhostPosition() {
         if (out != null && !isServer) {
-            Ghost clientGhost = ghosts.get(0);  // In multiplayer, assume first ghost is controlled by the client
+            //Ghost clientGhost = ghosts.get(0);  // In multiplayer, assume first ghost is controlled by the client
+            Vaiduoklis clientGhost = vaiduoklis.get(0);
             out.println(clientGhost.getX() + "," + clientGhost.getY());
         }
     }
@@ -271,11 +315,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         int key = e.getKeyCode();
 
         if (!isMultiplayer || isServer) {
-            // Pac-Man controls (for server/host)
-            if (key == KeyEvent.VK_W) pacman.setDirection(0, -1);  // Up
-            if (key == KeyEvent.VK_S) pacman.setDirection(0, 1);   // Down
-            if (key == KeyEvent.VK_A) pacman.setDirection(-1, 0);  // Left
-            if (key == KeyEvent.VK_D) pacman.setDirection(1, 0);   // Right
+            Command command = commandMap.get(key);  // Get the command based on the key
+            if (command != null) {
+                command.execute();  // Execute the command
+            }
         }
 
         if (isMultiplayer && !isServer) {

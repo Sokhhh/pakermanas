@@ -1,6 +1,7 @@
 // RandomVaiduoklis.java
 package Factory;
 
+import AbstractFactory.IPacMan;
 import entities.PacMan;
 import game.Maze;
 import java.awt.Graphics;
@@ -18,7 +19,7 @@ public class RandomVaiduoklis implements Vaiduoklis {
     }
 
     @Override
-    public void move(Maze maze, PacMan pacman) {
+    public void move(Maze maze, IPacMan pacman) {
         int direction = random.nextInt(4);
         if (direction == 0 && !maze.isWall(x + 1, y)) x++; // Right
         else if (direction == 1 && !maze.isWall(x - 1, y)) x--; // Left
@@ -33,7 +34,22 @@ public class RandomVaiduoklis implements Vaiduoklis {
     }
 
     @Override
-    public boolean collidesWith(PacMan pacman) {
+    public boolean collidesWith(IPacMan pacman) {
         return this.x == pacman.getX() && this.y == pacman.getY();
+    }
+
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    // Get Ghost's X position
+    public int getX() {
+        return x;
+    }
+
+    // Get Ghost's Y position
+    public int getY() {
+        return y;
     }
 }

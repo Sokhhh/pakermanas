@@ -1,14 +1,13 @@
-package entities;
-
-import AbstractFactory.IPacMan;
+package AbstractFactory;
+import Factory.Vaiduoklis;
 import game.Maze;
 import java.awt.*;
 
-public class Ghost {
+public class MPGhost implements Vaiduoklis {
     private int x, y;
     private int dx, dy;  // Direction in x and y axis
 
-    public Ghost(int startX, int startY) {
+    public MPGhost(int startX, int startY) {
         this.x = startX;
         this.y = startY;
         this.dx = 0;
@@ -20,6 +19,7 @@ public class Ghost {
         this.dy = dy;
     }
 
+    @Override
     public void move(Maze maze, IPacMan pacman) {
         int newX = x + dx;
         int newY = y + dy;
