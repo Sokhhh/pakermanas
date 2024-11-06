@@ -16,4 +16,5 @@ public interface Vaiduoklis {
 
     // Get Ghost's Y position
     int getY();
+    void setDirection(int dx, int dy);
 }

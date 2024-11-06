@@ -9,6 +9,7 @@ import java.awt.Color;
 
 public class AggressiveVaiduoklis implements Vaiduoklis {
     private int x, y;
+    private int dx, dy;
 
     public AggressiveVaiduoklis(int startX, int startY) {
         this.x = startX;
@@ -48,5 +49,10 @@ public class AggressiveVaiduoklis implements Vaiduoklis {
     // Get Ghost's Y position
     public int getY() {
         return y;
+    }
+
+    public void setDirection(int dx, int dy) {
+        this.dx = dx;
+        this.dy = dy;
     }
 }

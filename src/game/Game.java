@@ -149,6 +149,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         ghosts.add(new GhostCPU(11,11));
         ghosts.add(new GhostCPU(11,12));
 
+        initializeCommands();
+
         setFocusable(true);
         addKeyListener(this);
 
@@ -323,10 +325,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         if (isMultiplayer && !isServer) {
             // Ghost controls (for client)
-            if (key == KeyEvent.VK_W && !ghosts.isEmpty()) ghosts.get(0).setDirection(0, -1);   // Up
-            if (key == KeyEvent.VK_S && !ghosts.isEmpty()) ghosts.get(0).setDirection(0, 1);    // Down
-            if (key == KeyEvent.VK_A && !ghosts.isEmpty()) ghosts.get(0).setDirection(-1, 0);   // Left
-            if (key == KeyEvent.VK_D && !ghosts.isEmpty()) ghosts.get(0).setDirection(1, 0);    // Right
+            if (key == KeyEvent.VK_W && !vaiduoklis.isEmpty()) vaiduoklis.get(0).setDirection(0, -1);   // Up
+            if (key == KeyEvent.VK_S && !vaiduoklis.isEmpty()) vaiduoklis.get(0).setDirection(0, 1);    // Down
+            if (key == KeyEvent.VK_A && !vaiduoklis.isEmpty()) vaiduoklis.get(0).setDirection(-1, 0);   // Left
+            if (key == KeyEvent.VK_D && !vaiduoklis.isEmpty()) vaiduoklis.get(0).setDirection(1, 0);    // Right
         }
     }
 

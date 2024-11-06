@@ -11,6 +11,7 @@ import java.util.Random;
 public class RandomVaiduoklis implements Vaiduoklis {
     private int x, y;
     private Random random;
+    private int dx, dy;
 
     public RandomVaiduoklis(int startX, int startY) {
         this.x = startX;
@@ -51,5 +52,10 @@ public class RandomVaiduoklis implements Vaiduoklis {
     // Get Ghost's Y position
     public int getY() {
         return y;
+    }
+
+    public void setDirection(int dx, int dy) {
+        this.dx = dx;
+        this.dy = dy;
     }
 }
