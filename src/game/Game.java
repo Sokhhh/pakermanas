@@ -15,6 +15,8 @@ import ui.GameOverScreen;
 
 import SoundAdapter.JavaSoundAdapter;
 import SoundAdapter.SoundPlayer;
+import Observer.SoundOnCollision;
+import Observer.CollisionObserver;
 
 //Deivio
 import Command.*;
@@ -51,7 +53,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     // Score display
 
     private AbstractEntityFactory entityFactory;
-    private SoundPlayer deathSound = new JavaSoundAdapter();
+
+    private List<CollisionObserver> collisionObservers = new ArrayList<>();
+
 
     //VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
     //Vaiduoklis aggressiveGhost = vaiduoklisFactory.createVaiduoklis("Aggressive", 10, 10);
@@ -81,6 +85,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // Set up the JPanel layout
         this.setLayout(new BorderLayout());
 
+        //Observer
+        SoundPlayer deathSound = new JavaSoundAdapter();
+        addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
             if (isServer) {
@@ -110,6 +117,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         initializeCommands();
         initializeGhosts();
+
+        //Observer
+        SoundPlayer deathSound = new JavaSoundAdapter();
+        addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
             //ghosts.add(new Ghost(11,11));
@@ -144,6 +155,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         } else {
             builder = new Maze2Builder();
         }
+
+        //Observer
+        SoundPlayer deathSound = new JavaSoundAdapter();
+        addCollisionObserver(new SoundOnCollision(deathSound));
 
         MazeDirector director = new MazeDirector(builder);
         this.maze = director.constructMaze();  // Build and retrieve the maze
@@ -341,7 +356,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (ghost.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
                 timer.stop(); // Stop the game loop
-                deathSound.play("sounds/death.wav");
+                notifyCollisionObservers();
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
                 GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;
@@ -351,7 +366,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (vaiduoklis.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
                 timer.stop(); // Stop the game loop
-                deathSound.play("sounds/death.wav");
+                notifyCollisionObservers();
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
                 GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;
@@ -366,6 +381,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             GameOverScreen.display("You Win! All pellets collected. Your score: " + scoreCounter.getScore());
         }
     }
+    public void addCollisionObserver(CollisionObserver observer) {
+        collisionObservers.add(observer);
+    }
+    private void notifyCollisionObservers() {
+        for (CollisionObserver observer : collisionObservers) {
+            observer.onCollision();
+        }
+    }
+
 
     @Override
     public void keyReleased(KeyEvent e) {}
