@@ -7,6 +7,7 @@ import BuilderPattern.MazeDirector;
 import Decorator.PowerPelletDecorator;
 import Factory.Vaiduoklis;
 import Factory.VaiduoklisFactory;
+import Strategy.FrightenedMovement;
 import entities.GhostCPU;
 import entities.PacMan;
 import entities.Ghost;
@@ -300,6 +301,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // Check if Pac-Man collects a power pellet
         if (maze.eatPowerPellet(pacman.getX(), pacman.getY())) {
             ((PowerPelletDecorator) pacman).activateSuperMode();  // Activate super mode
+
+//            for (Vaiduoklis vaiduoklis : vaiduoklis) {
+//                vaiduoklis.setMovementStrategy(new FrightenedMovement());
+//            }
         }
         for (Ghost ghost : ghosts) {
             ghost.move(maze, pacman);

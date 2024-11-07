@@ -56,4 +56,8 @@ public class CautiousVaiduoklis implements Vaiduoklis {
         this.dx = dx;
         this.dy = dy;
     }
+
+    public void setMovementStrategy(MovementStrategy strategy){
+        this.movementStrategy = strategy;
+    }
 }

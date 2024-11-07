@@ -2,6 +2,7 @@
 package Factory;
 
 import AbstractFactory.IPacMan;
+import Strategy.MovementStrategy;
 import entities.PacMan;
 import game.Maze;
 import java.awt.Graphics;
@@ -18,4 +19,6 @@ public interface Vaiduoklis {
     // Get Ghost's Y position
     int getY();
     void setDirection(int dx, int dy);
+
+    void setMovementStrategy(MovementStrategy strategy);
 }
