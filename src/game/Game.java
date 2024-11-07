@@ -4,6 +4,7 @@ import BuilderPattern.Maze1Builder;
 import BuilderPattern.Maze2Builder;
 import BuilderPattern.MazeBuilder;
 import BuilderPattern.MazeDirector;
+import Decorator.PowerPelletDecorator;
 import Factory.Vaiduoklis;
 import Factory.VaiduoklisFactory;
 import entities.GhostCPU;
@@ -70,6 +71,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         //ghosts.add(new Ghost(11,11));  // List of ghosts (multiple ghosts)
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         this.pacman = entityFactory.createPacMan(11,21);
+
+        this.pacman = new PowerPelletDecorator(pacman);
+
         //this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
 
         this.maze = new Maze();  // Generate the maze
@@ -112,6 +116,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.isServer = isServer;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         this.pacman = entityFactory.createPacMan(11,21);
+
+        this.pacman = new PowerPelletDecorator(pacman);
+
         //this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
         this.maze = new Maze();  // Generate the maze
 
@@ -163,7 +170,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         MazeDirector director = new MazeDirector(builder);
         this.maze = director.constructMaze();  // Build and retrieve the maze
 
-        this.pacman = new PacMan(11, 21);  // Initialize Pac-Man at starting position
+        this.pacman = new PacMan(11, 21); // Initialize Pac-Man at starting position
+        this.pacman = new PowerPelletDecorator(pacman);
+
         ghosts.add(new GhostCPU(11,10));
         ghosts.add(new GhostCPU(11,11));
         ghosts.add(new GhostCPU(11,12));
@@ -288,7 +297,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         pacman.move(maze);  // Move Pac-Man based on the current direction
-
+        // Check if Pac-Man collects a power pellet
+        if (maze.eatPowerPellet(pacman.getX(), pacman.getY())) {
+            ((PowerPelletDecorator) pacman).activateSuperMode();  // Activate super mode
+        }
         for (Ghost ghost : ghosts) {
             ghost.move(maze, pacman);
         }
@@ -311,13 +323,18 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
         maze.render(g);  // Draw the maze
         pacman.render(g);  // Draw Pac-Man
+
         for (Ghost ghost : ghosts) {
             ghost.render(g);
         }
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             vaiduoklis.render(g);
         }
-        checkCollision();
+
+        if (!((PowerPelletDecorator) pacman).isSuperModeActive()){
+            checkCollision(); // Ignore ghost collisions when in super mode.
+        }
+
         checkWinCondition();
 
         // Draw the score in the top right corner

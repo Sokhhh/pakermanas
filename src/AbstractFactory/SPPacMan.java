@@ -87,4 +87,7 @@ public class SPPacMan implements IPacMan {
         this.x = x;
         this.y = y;
     }
+
+    public int getDx(){return dx;}
+    public int getDy(){return dy;}
 }
