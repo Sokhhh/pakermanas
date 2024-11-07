@@ -1,7 +1,5 @@
 package game;
 
-import game.Game;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -14,19 +12,13 @@ import java.net.Socket;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ ServerSocket.class, Socket.class })
+
 public class MultiplayerTests {
+
     @Test
     public void testGameEndsOnCollision() {
         Game game = new Game(false, true); // Create a single-player game
@@ -60,15 +52,21 @@ public class MultiplayerTests {
         Socket mockSocket = Mockito.mock(Socket.class);
         PrintWriter mockOut = Mockito.mock(PrintWriter.class);
 
+        // Define behavior for mocks
         when(mockServerSocket.accept()).thenReturn(mockSocket);
         when(mockSocket.getOutputStream()).thenReturn(System.out);
 
+        // Create a Game instance and inject mocks
         Game game = new Game(true, true, "localhost");
-        game.serverSocket = mockServerSocket;
-        game.out = mockOut;
+        game.serverSocket = mockServerSocket; // Inject mock ServerSocket
+        game.clientSocket = mockSocket;       // Inject mock client Socket
+        game.out = mockOut;                   // Inject mock PrintWriter
 
-        // Simulate disconnection
+        // Simulate disconnection by calling close() on the mocked client socket
         game.clientSocket.close();
+
+        // Verify that close() was called on the client socket
+        verify(mockSocket, times(1)).close();
         assertTrue(game.clientSocket.isClosed(), "Client socket should be closed on disconnection.");
     }
     @ParameterizedTest
@@ -126,7 +124,4 @@ public class MultiplayerTests {
         assertEquals(serverGame.getPacman().getX(), clientGame.getPacman().getX(), "Client's Pac-Man X position should match server's.");
         assertEquals(serverGame.getPacman().getY(), clientGame.getPacman().getY(), "Client's Pac-Man Y position should match server's.");
     }
-
-
-
 }
