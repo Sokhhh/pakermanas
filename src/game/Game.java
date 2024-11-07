@@ -5,19 +5,17 @@ import BuilderPattern.Maze2Builder;
 import BuilderPattern.MazeBuilder;
 import BuilderPattern.MazeDirector;
 import Factory.Vaiduoklis;
-import Factory.VaiduoklisFactory;
 import entities.GhostCPU;
 import entities.PacMan;
 import entities.Ghost;
-import network.GameServer;
-import network.GameClient;
 import ui.GameOverScreen;
 
-import SoundAdapter.JavaSoundAdapter;
+import SoundAdapter.WAWAdapter;
 import SoundAdapter.SoundPlayer;
 import Observer.SoundOnCollision;
 import Observer.CollisionObserver;
-
+import Bridge.EventSound;
+import Bridge.DeathSound;
 //Deivio
 import Command.*;
 import AbstractFactory.*;
@@ -85,8 +83,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // Set up the JPanel layout
         this.setLayout(new BorderLayout());
 
+        //Bridge
+        SoundPlayer player = new WAWAdapter(); // your implementation of SoundPlayer
+        EventSound deathSound = new DeathSound(player);
         //Observer
-        SoundPlayer deathSound = new JavaSoundAdapter();
         addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
@@ -118,8 +118,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         initializeCommands();
         initializeGhosts();
 
+        //Bridge
+        SoundPlayer player = new WAWAdapter(); // your implementation of SoundPlayer
+        EventSound deathSound = new DeathSound(player);
         //Observer
-        SoundPlayer deathSound = new JavaSoundAdapter();
         addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
@@ -156,8 +158,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             builder = new Maze2Builder();
         }
 
+        //Bridge
+        SoundPlayer player = new WAWAdapter(); // your implementation of SoundPlayer
+        EventSound deathSound = new DeathSound(player);
         //Observer
-        SoundPlayer deathSound = new JavaSoundAdapter();
         addCollisionObserver(new SoundOnCollision(deathSound));
 
         MazeDirector director = new MazeDirector(builder);

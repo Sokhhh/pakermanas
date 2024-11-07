@@ -1,15 +1,16 @@
 package Observer;
-import SoundAdapter.SoundPlayer;
+
+import Bridge.EventSound;
 
 public class SoundOnCollision implements CollisionObserver {
-    private final SoundPlayer soundPlayer;
+    private final EventSound sound;
 
-    public SoundOnCollision(SoundPlayer soundPlayer) {
-        this.soundPlayer = soundPlayer;
+    public SoundOnCollision(EventSound sound) {
+        this.sound = sound;
     }
 
     @Override
     public void onCollision() {
-        soundPlayer.play("sounds/death.wav");
+        sound.play();
     }
 }
