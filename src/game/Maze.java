@@ -15,9 +15,9 @@ public class Maze {
                 {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
                 {'#', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '#'},
                 {'#', '.', '#', '.', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '.', '#', '.', '#'},
-                {'#', '.', '.', '.', '.', '*', '.', '.', '#', '.', '.', '.', '.', '.', '#', '.', '.', '*', '.', '.', '.', '.', '#'},
+                {'#', '.', '.', '.', '.', 'T', '.', '.', '#', '.', '.', '.', '.', '.', '#', '.', '.', 'D', '.', '.', '.', '.', '#'},
                 {'#', '#', '#', '.', '#', '.', '#', '.', '#', '.', '#', '#', '#', '.', '#', '.', '#', '.', '#', '.', '#', '#', '#'},
-                {'#', '.', '.', '.', '#', '.', '#', '.', '#', '.', '#', ' ', '#', '.', '#', '.', '#', '.', '#', '.', '.', '.', '#'},
+                {'#', '.', '.', '.', '#', '.', '#', '.', '#', '.', '#', '#', '#', '.', '#', '.', '#', '.', '#', '.', '.', '.', '#'},
                 {'#', '.', '#', '.', '#', '.', '#', '.', '#', '.', '#', '#', '#', '.', '#', '.', '#', '.', '#', '.', '#', '.', '#'},
                 {'#', '.', '.', '.', '#', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '#', '.', '.', '.', '#'},
                 {'#', '#', '#', '#', '#', '.', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '.', '#', '#', '#', '#', '#'},
@@ -29,9 +29,9 @@ public class Maze {
                 {'#', '#', '#', '#', '#', '.', '#', '.', '#', '#', '#', '#', '#', '#', '#', '.', '#', '.', '#', '#', '#', '#', '#'},
                 {'#', '.', '.', '.', '#', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '#', '.', '.', '.', '#'},
                 {'#', '.', '#', '.', '#', '.', '#', '.', '#', '.', '#', '#', '#', '.', '#', '.', '#', '.', '#', '.', '#', '.', '#'},
-                {'#', '.', '.', '.', '#', '.', '#', '.', '#', '.', '#', ' ', '#', '.', '#', '.', '#', '.', '#', '.', '.', '.', '#'},
+                {'#', '.', '.', '.', '#', '.', '#', '.', '#', '.', '#', '#', '#', '.', '#', '.', '#', '.', '#', '.', '.', '.', '#'},
                 {'#', '#', '#', '.', '#', '.', '#', '.', '#', '.', '#', '#', '#', '.', '#', '.', '#', '.', '#', '.', '#', '#', '#'},
-                {'#', '.', '.', '.', '.', '*', '.', '.', '#', '.', '.', '.', '.', '.', '#', '.', '.', '*', '.', '.', '.', '.', '#'},
+                {'#', '.', '.', '.', '.', 'I', '.', '.', '#', '.', '.', '.', '.', '.', '#', '.', '.', 'T', '.', '.', '.', '.', '#'},
                 {'#', '.', '#', '.', '#', '.', '#', '#', '#', '#', '#', '.', '#', '#', '#', '#', '#', '.', '#', '.', '#', '.', '#'},
                 {'#', '.', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '.', '#'},
                 {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
@@ -58,8 +58,16 @@ public class Maze {
                 } else if (grid[i][j] == '.') {
                     g.setColor(Color.WHITE);  // Pellet color
                     g.fillOval(j * 20 + 7, i * 20 + 7, 6, 6);
-                } else if (grid[i][j] == '*') {
+                } else if (grid[i][j] == 'T') {
                     g.setColor(Color.WHITE);  // Pellet color
+                    int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
+                    g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
+                } else if (grid[i][j] == 'D') {
+                    g.setColor(Color.YELLOW);  // Pellet color
+                    int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
+                    g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
+                } else if (grid[i][j] == 'I') {
+                    g.setColor(Color.CYAN);  // Pellet color
                     int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
                     g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
                 }
@@ -73,6 +81,39 @@ public class Maze {
 
     public boolean eatPellet(int x, int y) {
         if (grid[y][x] == '.') {
+            grid[y][x] = ' ';  // Pac-Man eats the pellet
+
+            return true;// Indicate that a pellet was eaten
+        }
+
+        return false;// No pellet eaten
+    }
+
+    public boolean eatInvincibilityPellet(int x, int y) {
+        // Check if there's a power pellet at the given position
+        if (grid[y][x] == 'I') {
+            grid[y][x] = ' ';  // Pac-Man eats the pellet
+
+            return true;// Indicate that a pellet was eaten
+        }
+
+        return false;// No pellet eaten
+    }
+
+    public boolean eatDoublePointsPellet(int x, int y) {
+        // Check if there's a power pellet at the given position
+        if (grid[y][x] == 'D') {
+            grid[y][x] = ' ';  // Pac-Man eats the pellet
+
+            return true;// Indicate that a pellet was eaten
+        }
+
+        return false;// No pellet eaten
+    }
+
+    public boolean eatTeleporterPellet(int x, int y) {
+        // Check if there's a power pellet at the given position
+        if (grid[y][x] == 'T') {
             grid[y][x] = ' ';  // Pac-Man eats the pellet
 
             return true;// Indicate that a pellet was eaten
@@ -102,4 +143,23 @@ public class Maze {
         }
         return true;  // All pellets have been eaten
     }
+
+    public int getWidth() {
+        return grid[0].length;  // The number of columns in the maze (length of the first row)
+    }
+
+    public int getHeight() {
+        return grid.length;  // The number of rows in the maze
+    }
+
+    public boolean isValidPosition(int newX, int newY) {
+        // Check if the coordinates are within the maze boundaries
+        if (newX < 0 || newX >= getWidth() || newY < 0 || newY >= getHeight()) {
+            return false;  // Out of bounds
+        }
+
+        // Check if the position is a wall
+        return grid[newY][newX] != '#';
+    }
+
 }

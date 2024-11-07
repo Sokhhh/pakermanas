@@ -4,8 +4,12 @@ import BuilderPattern.Maze1Builder;
 import BuilderPattern.Maze2Builder;
 import BuilderPattern.MazeBuilder;
 import BuilderPattern.MazeDirector;
-import Decorator.PowerPelletDecorator;
+import Decorator.DoublePointDecorator;
+import Decorator.InvincibilityDecorator;
+import Decorator.PacManDecorator;
+import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
+import Strategy.FrightenedMovement;
 import ui.GameOverScreen;
 
 //Gusto
@@ -52,8 +56,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
-        this.pacman = entityFactory.createPacMan();
-        this.pacman = new PowerPelletDecorator(pacman);
+        initializePacMan();
+
         this.maze = new Maze();  // Generate the maze
         this.serverIP = serverIP;
 
@@ -90,8 +94,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
-        this.pacman = entityFactory.createPacMan();
-        this.pacman = new PowerPelletDecorator(pacman);
+        initializePacMan();
+
         this.maze = new Maze();  // Generate the maze
 
         initializeCommands();
@@ -131,8 +135,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         MazeDirector director = new MazeDirector(builder);
         this.maze = director.constructMaze();  // Build and retrieve the maze
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
-        this.pacman = entityFactory.createPacMan();
-        this.pacman = new PowerPelletDecorator(pacman);
+        initializePacMan();
 
         initializeCommands();
         initializeGhosts();
@@ -143,6 +146,34 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         timer = new Timer(100, this);
         timer.start();
     }
+
+    private void initializePacMan(){
+//        this.pacman = entityFactory.createPacMan();
+//        this.pacman = new InvincibilityDecorator(new DoublePointDecorator(pacman));
+        this.pacman = new InvincibilityDecorator(new DoublePointDecorator(new TeleporterDecorator(entityFactory.createPacMan())));
+    }
+
+    private IPacMan getTeleporterDecorator(IPacMan pacman) {
+        while (pacman instanceof PacManDecorator) {
+            if (pacman instanceof TeleporterDecorator) {
+                return pacman;  // Found the TeleporterDecorator
+            }
+            pacman = ((PacManDecorator) pacman).decoratedPacMan;  // Unwrap the decorator
+        }
+        return null;  // Return null if no TeleporterDecorator is found
+    }
+
+    private IPacMan getDoublePointDecorator(IPacMan pacman) {
+        while (pacman instanceof PacManDecorator) {
+            if (pacman instanceof DoublePointDecorator) {
+                return pacman;  // Found the DoublePointDecorator
+            }
+            pacman = ((PacManDecorator) pacman).decoratedPacMan;  // Unwrap the decorator
+        }
+        return null;  // Return null if no DoublePointDecorator is found
+    }
+
+
 
     private void initializeGhosts() {
         // Add ghosts based on factory method
@@ -251,16 +282,40 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         pacman.move(maze);  // Move Pac-Man based on the current direction
-        // Check if Pac-Man collects a power pellet
-        if (maze.eatPowerPellet(pacman.getX(), pacman.getY())) {
-            ((PowerPelletDecorator) pacman).activateSuperMode();  // Activate super mode
+        pacman.eatPellet(maze);
 
-//            for (Vaiduoklis vaiduoklis : vaiduoklis) {
-//                vaiduoklis.setMovementStrategy(new FrightenedMovement());
-//            }
+        checkWinCondition();
+
+        // Check if Pac-Man collects a power pellet
+        if (maze.eatInvincibilityPellet(pacman.getX(), pacman.getY())) {
+            if (pacman instanceof InvincibilityDecorator) {
+                System.out.println("TEST0");
+                ((InvincibilityDecorator) pacman).activateInvincibility();  // Activate invincibility
+            }
         }
+
+        if (maze.eatDoublePointsPellet(pacman.getX(), pacman.getY())) {
+            IPacMan doublePointPacMan = getDoublePointDecorator(pacman);
+            if (doublePointPacMan != null && doublePointPacMan instanceof DoublePointDecorator) {
+                System.out.println("TEST1");
+                ((DoublePointDecorator) doublePointPacMan).activateDoublePoints();  // Activate double points
+            }
+        }
+
+        if (maze.eatTeleporterPellet(pacman.getX(), pacman.getY())) {
+            IPacMan teleporterPacMan = getTeleporterDecorator(pacman);
+            if (teleporterPacMan != null && teleporterPacMan instanceof TeleporterDecorator) {
+                System.out.println("TEST2");
+                ((TeleporterDecorator) teleporterPacMan).teleport(maze);  // Activate double points
+            }
+        }
+
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             vaiduoklis.move(maze, pacman);
+        }
+
+        if (!((InvincibilityDecorator) pacman).isInvincibilityActive()) {
+            checkCollision();  // Ignore ghost collisions when in super mode.
         }
 
         if (isMultiplayer) {
@@ -282,12 +337,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             vaiduoklis.render(g);
         }
-
-        if (!((PowerPelletDecorator) pacman).isSuperModeActive()){
-            checkCollision(); // Ignore ghost collisions when in super mode.
-        }
-
-        checkWinCondition();
 
         // Draw the score in the top right corner
         ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
