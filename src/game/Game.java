@@ -13,6 +13,9 @@ import network.GameServer;
 import network.GameClient;
 import ui.GameOverScreen;
 
+import SoundAdapter.JavaSoundAdapter;
+import SoundAdapter.SoundPlayer;
+
 //Deivio
 import Command.*;
 import AbstractFactory.*;
@@ -48,6 +51,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     // Score display
 
     private AbstractEntityFactory entityFactory;
+    private SoundPlayer deathSound = new JavaSoundAdapter();
 
     //VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
     //Vaiduoklis aggressiveGhost = vaiduoklisFactory.createVaiduoklis("Aggressive", 10, 10);
@@ -337,6 +341,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (ghost.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
                 timer.stop(); // Stop the game loop
+                deathSound.play("sounds/death.wav");
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
                 GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;
@@ -346,6 +351,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (vaiduoklis.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
                 timer.stop(); // Stop the game loop
+                deathSound.play("sounds/death.wav");
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
                 GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;

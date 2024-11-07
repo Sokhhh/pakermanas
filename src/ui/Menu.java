@@ -4,9 +4,16 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import game.Game;
+import SoundAdapter.SoundPlayer;
 
 public class Menu {
+    private SoundPlayer backgroundMusic;
+
+    public Menu(SoundPlayer backgroundMusic) {
+        this.backgroundMusic = backgroundMusic;
+    }
     public void display() {
+
         JFrame frame = new JFrame("Pac-Man Game");
         JButton singlePlayerButton = new JButton("Singleplayer");
         JButton multiPlayerButton = new JButton("Multiplayer (Host)");
@@ -15,6 +22,7 @@ public class Menu {
         // Action for single-player button
         singlePlayerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                backgroundMusic.stop();
                 // Add "Default Map" as an option for maze selection
                 String[] mazeOptions = {"Default Map", "Maze1", "Maze2"};
                 String selectedMaze = (String) JOptionPane.showInputDialog(
@@ -50,6 +58,7 @@ public class Menu {
         // Action for multiplayer host button
         multiPlayerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                backgroundMusic.stop();
                 Game game = new Game(true, true);  // true for multiplayer, true for server
                 JFrame gameFrame = new JFrame("Pac-Man Game");
                 gameFrame.add(game);
@@ -64,6 +73,7 @@ public class Menu {
         // Action for multiplayer client button
         multiPlayerClientButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                backgroundMusic.stop();
                 // Show an input dialog to get the server IP from the player
                 String serverIP = JOptionPane.showInputDialog(
                         frame,
