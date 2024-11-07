@@ -2,7 +2,7 @@ package SoundAdapter;
 import javazoom.jl.player.Player;
 import java.io.FileInputStream;
 
-public class JLayerSoundAdapter implements SoundPlayer {
+public class MP3Adapter implements SoundPlayer {
     private Player player;
     private boolean isLooping;
 

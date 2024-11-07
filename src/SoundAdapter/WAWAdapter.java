@@ -2,7 +2,7 @@ package SoundAdapter;
 import javax.sound.sampled.*;
 import java.io.File;
 
-public class JavaSoundAdapter implements SoundPlayer {
+public class WAWAdapter implements SoundPlayer {
     private Clip clip;
     private boolean isLooping = false;
 
