@@ -44,4 +44,8 @@ public class ScoreCounterSingleton {
     public void resetScore() {
         this.score = 0;
     }
+
+    public void incrementScore(int i) {
+        this.score = this.score + i;
+    }
 }

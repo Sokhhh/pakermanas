@@ -54,6 +54,17 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private List<CollisionObserver> collisionObservers = new ArrayList<>();
     private List<Vaiduoklis> vaiduoklis = new ArrayList<>();
 
+    //TESTING PURPOSES
+    public IPacMan getPacman() {
+        return pacman;
+    }
+    public List<Vaiduoklis> getVaiduoklis() {
+        return vaiduoklis;
+    }
+    public Timer getTimer() {
+        return timer;
+    }
+
     public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
@@ -377,7 +388,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    private void checkCollision() {
+    public void checkCollision() {
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             if (vaiduoklis.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
