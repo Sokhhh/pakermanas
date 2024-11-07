@@ -13,4 +13,8 @@ public class MoveDownCommand implements Command {
     public void execute() {
         pacman.setDirection(0, 1);  // Move down
     }
+
+    public void undo() {
+        pacman.setDirection(0, 0);  // Move down
+    }
 }

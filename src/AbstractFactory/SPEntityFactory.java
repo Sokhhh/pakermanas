@@ -2,7 +2,7 @@ package AbstractFactory;
 import Factory.Vaiduoklis;
 import Factory.VaiduoklisFactory;
 
-public class SPEntityFactory implements AbstractEntityFactory {
+public class SPEntityFactory extends AbstractEntityFactory {
     private VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
     SPPacMan PacManPrototype = new SPPacMan(11,21);
     @Override
