@@ -6,15 +6,9 @@ import BuilderPattern.MazeBuilder;
 import BuilderPattern.MazeDirector;
 import Decorator.PowerPelletDecorator;
 import Factory.Vaiduoklis;
-import Factory.VaiduoklisFactory;
-import Strategy.FrightenedMovement;
-import entities.GhostCPU;
-import entities.PacMan;
-import entities.Ghost;
-import network.GameServer;
-import network.GameClient;
 import ui.GameOverScreen;
 
+//Gusto
 import SoundAdapter.JavaSoundAdapter;
 import SoundAdapter.SoundPlayer;
 import Observer.SoundOnCollision;
@@ -39,15 +33,11 @@ import java.util.Map;
 public class Game extends JPanel implements ActionListener, KeyListener {
     private Timer timer;
     private IPacMan pacman;
-    private List<Ghost> ghosts = new ArrayList<>();  // List of ghosts (multiple ghosts)
     private Maze maze;
-
     private Map<Integer, Command> commandMap = new HashMap<>();
-
     private boolean isMultiplayer;
     private boolean isServer;
     private String serverIP;
-
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private PrintWriter out;
@@ -55,28 +45,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     // Score display
 
     private AbstractEntityFactory entityFactory;
-
     private List<CollisionObserver> collisionObservers = new ArrayList<>();
-
-
-    //VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
-    //Vaiduoklis aggressiveGhost = vaiduoklisFactory.createVaiduoklis("Aggressive", 10, 10);
-    //Vaiduoklis randomGhost = vaiduoklisFactory.createVaiduoklis("Random", 5, 5);
-    //Vaiduoklis cautiousGhost = vaiduoklisFactory.createVaiduoklis("Cautious", 15, 15);
     private List<Vaiduoklis> vaiduoklis = new ArrayList<>();
 
     public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
-        //this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
-        //ghosts.add(new Ghost(11,11));  // List of ghosts (multiple ghosts)
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
-        this.pacman = entityFactory.createPacMan(11,21);
-
+        this.pacman = entityFactory.createPacMan();
         this.pacman = new PowerPelletDecorator(pacman);
-
-        //this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
-
         this.maze = new Maze();  // Generate the maze
         this.serverIP = serverIP;
 
@@ -101,9 +78,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 startClient();
             }
         }
-        else {
-            //ghosts.add(new GhostCPU(11,11));
-        }
 
         setFocusable(true);
         addKeyListener(this);
@@ -116,11 +90,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
-        this.pacman = entityFactory.createPacMan(11,21);
-
+        this.pacman = entityFactory.createPacMan();
         this.pacman = new PowerPelletDecorator(pacman);
-
-        //this.pacman = new PacMan(11, 21);  // Start Pac-Man at (1,1)
         this.maze = new Maze();  // Generate the maze
 
         initializeCommands();
@@ -131,22 +102,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
-            //ghosts.add(new Ghost(11,11));
             if (isServer) {
                 startServer();
             } else {
                 startClient();
             }
-        }
-        else {
-            //this.ghost = new GhostCPU(28,28);
-//            ghosts.add(new GhostCPU(11,10));
-//            ghosts.add(new GhostCPU(11,11));
-//            ghosts.add(new GhostCPU(11,12));
-            //vaiduoklis.add(aggressiveGhost);
-            //vaiduoklis.add(randomGhost);
-            //vaiduoklis.add(cautiousGhost);
-
         }
 
         setFocusable(true);
@@ -170,15 +130,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         MazeDirector director = new MazeDirector(builder);
         this.maze = director.constructMaze();  // Build and retrieve the maze
-
-        this.pacman = new PacMan(11, 21); // Initialize Pac-Man at starting position
+        this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
+        this.pacman = entityFactory.createPacMan();
         this.pacman = new PowerPelletDecorator(pacman);
 
-        ghosts.add(new GhostCPU(11,10));
-        ghosts.add(new GhostCPU(11,11));
-        ghosts.add(new GhostCPU(11,12));
-
         initializeCommands();
+        initializeGhosts();
 
         setFocusable(true);
         addKeyListener(this);
@@ -246,10 +203,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 int ghostX = Integer.parseInt(position[0]);
                 int ghostY = Integer.parseInt(position[1]);
 
-                if (!ghosts.isEmpty()) {
-                    ghosts.get(0).setPosition(ghostX, ghostY);  // Update first ghost's position
-                }
-
                 if (!vaiduoklis.isEmpty()) {
                     vaiduoklis.get(0).setPosition(ghostX, ghostY);  // Update first ghost's position
                 }
@@ -306,9 +259,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 //                vaiduoklis.setMovementStrategy(new FrightenedMovement());
 //            }
         }
-        for (Ghost ghost : ghosts) {
-            ghost.move(maze, pacman);
-        }
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             vaiduoklis.move(maze, pacman);
         }
@@ -329,9 +279,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         maze.render(g);  // Draw the maze
         pacman.render(g);  // Draw Pac-Man
 
-        for (Ghost ghost : ghosts) {
-            ghost.render(g);
-        }
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             vaiduoklis.render(g);
         }
@@ -374,16 +321,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     private void checkCollision() {
-        for (Ghost ghost : ghosts) {
-            if (ghost.collidesWith(pacman)) {
-                System.out.println("Game Over! Pac-Man has been caught by the ghost.");
-                timer.stop(); // Stop the game loop
-                notifyCollisionObservers();
-                ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
-                GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
-                break;
-            }
-        }
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             if (vaiduoklis.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
@@ -411,7 +348,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             observer.onCollision();
         }
     }
-
 
     @Override
     public void keyReleased(KeyEvent e) {}

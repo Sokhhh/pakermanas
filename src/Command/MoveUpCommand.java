@@ -1,7 +1,6 @@
 package Command;
 
 import AbstractFactory.IPacMan;
-import entities.PacMan;
 
 public class MoveUpCommand implements Command {
     private IPacMan pacman;

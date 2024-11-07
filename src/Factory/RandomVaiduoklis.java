@@ -3,7 +3,6 @@ package Factory;
 
 import AbstractFactory.IPacMan;
 import Strategy.MovementStrategy;
-import entities.PacMan;
 import game.Maze;
 import java.awt.Graphics;
 import java.awt.Color;

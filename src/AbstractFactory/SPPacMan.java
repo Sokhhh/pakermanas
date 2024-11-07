@@ -1,11 +1,12 @@
 package AbstractFactory;
 
+import Prototype.CloneableEntity;
 import game.Maze;
 import game.ScoreCounterSingleton;
 
 import java.awt.*;
 
-public class SPPacMan implements IPacMan {
+public class SPPacMan implements IPacMan, CloneableEntity {
     private int x, y;
     private int dx, dy;  // Direction in x and y axis
     private int mouthAngle = 45;  // Starting mouth angle for animation
@@ -90,4 +91,9 @@ public class SPPacMan implements IPacMan {
 
     public int getDx(){return dx;}
     public int getDy(){return dy;}
+
+    @Override
+    public SPPacMan clone() {
+        return new SPPacMan(this.x, this.y);
+    }
 }

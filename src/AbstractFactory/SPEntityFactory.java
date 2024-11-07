@@ -4,10 +4,10 @@ import Factory.VaiduoklisFactory;
 
 public class SPEntityFactory implements AbstractEntityFactory {
     private VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
-
+    SPPacMan PacManPrototype = new SPPacMan(11,21);
     @Override
-    public IPacMan createPacMan(int startX, int startY) {
-        return new SPPacMan(startX,startY);
+    public IPacMan createPacMan() {
+        return PacManPrototype.clone();
     }
 
     @Override
