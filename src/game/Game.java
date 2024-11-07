@@ -40,13 +40,13 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private Timer timer;
     private IPacMan pacman;
     private Maze maze;
-    private Map<Integer, Command> commandMap = new HashMap<>();
+    public Map<Integer, Command> commandMap = new HashMap<>();
     private boolean isMultiplayer;
     private boolean isServer;
     private String serverIP;
-    private ServerSocket serverSocket;
-    private Socket clientSocket;
-    private PrintWriter out;
+    public ServerSocket serverSocket;
+    public Socket clientSocket;
+    public PrintWriter out;
     private BufferedReader in;
     // Score display
 
@@ -283,7 +283,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     // Send Pac-Man's position (from host to client)
-    private void sendPacmanPosition() {
+    public void sendPacmanPosition() {
         if (out != null && isServer) {
             out.println(pacman.getX() + "," + pacman.getY());  // Send Pac-Man position to client
         }

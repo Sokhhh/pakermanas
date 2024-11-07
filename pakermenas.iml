@@ -25,5 +25,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="mockito.all" level="project" />
+    <orderEntry type="library" name="powermock.module.junit4" level="project" />
   </component>
 </module>
