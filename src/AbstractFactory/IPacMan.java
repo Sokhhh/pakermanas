@@ -6,6 +6,7 @@ import java.awt.*;
 
 public interface IPacMan {
     void move(Maze maze);
+    void eatPellet(Maze maze);
 
     int getX();
     int getY();

@@ -34,12 +34,6 @@ public class MPPacMan implements IPacMan, CloneableEntity {
             x = newX;  // Update Pac-Man's X position
             y = newY;  // Update Pac-Man's Y position
 
-            // Check if Pac-Man is on a pellet and eat it
-            if (maze.eatPellet(x, y)) {
-                ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance(); // Get the ScoreCounter instance
-                scoreCounter.addScore(1);  // Increment score by 1 when a pellet is eaten
-            }
-
             // Manage mouth animation
             if (mouthOpening) {
                 mouthAngle += 5;  // Open the mouth
@@ -51,7 +45,14 @@ public class MPPacMan implements IPacMan, CloneableEntity {
         }
     }
 
-
+    @Override
+    public void eatPellet(Maze maze){
+        // Check if Pac-Man is on a pellet and eat it
+        if (maze.eatPellet(x, y)) {
+            ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance(); // Get the ScoreCounter instance
+            scoreCounter.addScore(1);  // Increment score by 1 when a pellet is eaten
+        }
+    }
 
     public void render(Graphics g) {
         g.setColor(Color.YELLOW);  // Pac-Man color
