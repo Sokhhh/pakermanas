@@ -2,7 +2,7 @@
 package Factory;
 
 import AbstractFactory.IPacMan;
-import entities.PacMan;
+import Strategy.MovementStrategy;
 import game.Maze;
 import java.awt.Graphics;
 import java.awt.Color;
@@ -12,20 +12,20 @@ public class RandomVaiduoklis implements Vaiduoklis {
     private int x, y;
     private Random random;
     private int dx, dy;
+    private MovementStrategy movementStrategy;
 
-    public RandomVaiduoklis(int startX, int startY) {
+    public RandomVaiduoklis(int startX, int startY, MovementStrategy strategy) {
         this.x = startX;
         this.y = startY;
         this.random = new Random();
+        this.movementStrategy = strategy;
     }
 
     @Override
     public void move(Maze maze, IPacMan pacman) {
-        int direction = random.nextInt(4);
-        if (direction == 0 && !maze.isWall(x + 1, y)) x++; // Right
-        else if (direction == 1 && !maze.isWall(x - 1, y)) x--; // Left
-        else if (direction == 2 && !maze.isWall(x, y + 1)) y++; // Down
-        else if (direction == 3 && !maze.isWall(x, y - 1)) y--; // Up
+        if (movementStrategy != null){
+            movementStrategy.move(this,maze,pacman);
+        }
     }
 
     @Override
@@ -57,5 +57,9 @@ public class RandomVaiduoklis implements Vaiduoklis {
     public void setDirection(int dx, int dy) {
         this.dx = dx;
         this.dy = dy;
+    }
+
+    public void setMovementStrategy(MovementStrategy strategy){
+        this.movementStrategy = strategy;
     }
 }

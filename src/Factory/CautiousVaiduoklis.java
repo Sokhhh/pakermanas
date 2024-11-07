@@ -2,7 +2,7 @@
 package Factory;
 
 import AbstractFactory.IPacMan;
-import entities.PacMan;
+import Strategy.MovementStrategy;
 import game.Maze;
 import java.awt.Graphics;
 import java.awt.Color;
@@ -10,28 +10,18 @@ import java.awt.Color;
 public class CautiousVaiduoklis implements Vaiduoklis {
     private int x, y;
     private int dx, dy;
+    private MovementStrategy movementStrategy;
 
-    public CautiousVaiduoklis(int startX, int startY) {
+    public CautiousVaiduoklis(int startX, int startY, MovementStrategy strategy) {
         this.x = startX;
         this.y = startY;
+        this.movementStrategy = strategy;
     }
 
     @Override
     public void move(Maze maze, IPacMan pacman) {
-        if (Math.abs(x - pacman.getX()) + Math.abs(y - pacman.getY()) < 5) {
-            // Move away if too close
-            if (x < pacman.getX() && !maze.isWall(x - 1, y)) x--;
-            else if (x > pacman.getX() && !maze.isWall(x + 1, y)) x++;
-
-            if (y < pacman.getY() && !maze.isWall(x, y - 1)) y--;
-            else if (y > pacman.getY() && !maze.isWall(x, y + 1)) y++;
-        } else {
-            // Random wandering otherwise
-            if (x < pacman.getX() && !maze.isWall(x + 1, y)) x++;
-            else if (x > pacman.getX() && !maze.isWall(x - 1, y)) x--;
-
-            if (y < pacman.getY() && !maze.isWall(x, y + 1)) y++;
-            else if (y > pacman.getY() && !maze.isWall(x, y - 1)) y--;
+        if (movementStrategy != null){
+            movementStrategy.move(this,maze,pacman);
         }
     }
 
@@ -64,5 +54,9 @@ public class CautiousVaiduoklis implements Vaiduoklis {
     public void setDirection(int dx, int dy) {
         this.dx = dx;
         this.dy = dy;
+    }
+
+    public void setMovementStrategy(MovementStrategy strategy){
+        this.movementStrategy = strategy;
     }
 }

@@ -3,11 +3,10 @@ import Factory.Vaiduoklis;
 import Factory.VaiduoklisFactory;
 
 public class MPEntityFactory implements AbstractEntityFactory {
-    private VaiduoklisFactory vaiduoklisFactory = new VaiduoklisFactory();
-
+    MPPacMan PacManPrototype = new MPPacMan(11,21);
     @Override
-    public IPacMan createPacMan(int startX, int startY) {
-        return new MPPacMan(startX,startY);
+    public IPacMan createPacMan() {
+        return PacManPrototype.clone();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package AbstractFactory;
 import Factory.Vaiduoklis;
+import Strategy.MovementStrategy;
 import game.Maze;
 import java.awt.*;
 
@@ -55,5 +56,7 @@ public class MPGhost implements Vaiduoklis {
     public boolean collidesWith(IPacMan pacman) {
         return this.x == pacman.getX() && this.y == pacman.getY();
     }
+
+    public void setMovementStrategy(MovementStrategy strategy){}
 
 }

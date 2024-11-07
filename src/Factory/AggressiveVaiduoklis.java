@@ -2,7 +2,7 @@
 package Factory;
 
 import AbstractFactory.IPacMan;
-import entities.PacMan;
+import Strategy.MovementStrategy;
 import game.Maze;
 import java.awt.Graphics;
 import java.awt.Color;
@@ -10,20 +10,19 @@ import java.awt.Color;
 public class AggressiveVaiduoklis implements Vaiduoklis {
     private int x, y;
     private int dx, dy;
+    private MovementStrategy movementStrategy;;
 
-    public AggressiveVaiduoklis(int startX, int startY) {
+    public AggressiveVaiduoklis(int startX, int startY, MovementStrategy strategy) {
         this.x = startX;
         this.y = startY;
+        this.movementStrategy = strategy;
     }
 
     @Override
     public void move(Maze maze, IPacMan pacman) {
-        // Move toward Pac-Man's position
-        if (x < pacman.getX() && !maze.isWall(x + 1, y)) x++;
-        else if (x > pacman.getX() && !maze.isWall(x - 1, y)) x--;
-
-        if (y < pacman.getY() && !maze.isWall(x, y + 1)) y++;
-        else if (y > pacman.getY() && !maze.isWall(x, y - 1)) y--;
+        if (movementStrategy != null){
+            movementStrategy.move(this,maze,pacman);
+        }
     }
 
     @Override
@@ -54,5 +53,9 @@ public class AggressiveVaiduoklis implements Vaiduoklis {
     public void setDirection(int dx, int dy) {
         this.dx = dx;
         this.dy = dy;
+    }
+
+    public void setMovementStrategy(MovementStrategy strategy){
+        this.movementStrategy = strategy;
     }
 }
