@@ -14,7 +14,7 @@ public class GameOverScreen extends JPanel {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 36));

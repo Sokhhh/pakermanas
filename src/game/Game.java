@@ -395,7 +395,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 timer.stop(); // Stop the game loop
                 notifyCollisionObservers();
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
-                //GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
+                GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;
             }
         }
@@ -421,4 +421,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public void keyReleased(KeyEvent e) {}
     @Override
     public void keyTyped(KeyEvent e) {}
+
+    public Maze getMaze() {
+        return this.maze;
+    }
 }
