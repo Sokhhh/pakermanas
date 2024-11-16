@@ -9,6 +9,7 @@ import Decorator.InvincibilityDecorator;
 import Decorator.PacManDecorator;
 import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
+import Interpreter.CommandInterpreter;
 import PacManState.DoublePointsState;
 import PacManState.TeleportingState;
 import Strategy.FrightenedMovement;
@@ -35,17 +36,22 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import java.awt.Graphics;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
     private Timer timer;
     private IPacMan pacman;
     private Maze maze;
     private Map<Integer, Command> commandMap = new HashMap<>();
+
+    private CommandInterpreter interpreter; // Interpreter for console commands
+    private ExecutorService commandListenerThread; // For listening to console commands
+
     private boolean isMultiplayer;
     private boolean isServer;
     private String serverIP;
@@ -64,6 +70,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.isServer = isServer;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
+
+        this.interpreter = new CommandInterpreter();
+
 
         this.maze = new Maze();  // Generate the maze
         this.serverIP = serverIP;
@@ -97,6 +106,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         timer = new Timer(100, this);
         timer.start();
+
+        // Start the console command listener
+        startCommandListener();
     }
 
     public Game(boolean isMultiplayer, boolean isServer) {
@@ -104,6 +116,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.isServer = isServer;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
+        this.interpreter = new CommandInterpreter();
 
         this.maze = new Maze();  // Generate the maze
 
@@ -129,6 +142,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         timer = new Timer(100, this);
         timer.start();
+        // Start the console command listener
+        startCommandListener();
     }
     // Constructor for single-player with selected maze type
     public Game(String mazeType) {
@@ -158,6 +173,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         timer = new Timer(100, this);
         timer.start();
+
+        this.interpreter = new CommandInterpreter();
+        startCommandListener();
     }
 
     private void initializePacMan(){
@@ -206,6 +224,29 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         commandMap.put(KeyEvent.VK_S, new MoveDownCommand(pacman));    // Down
         commandMap.put(KeyEvent.VK_A, new MoveLeftCommand(pacman));    // Left
         commandMap.put(KeyEvent.VK_D, new MoveRightCommand(pacman));   // Right
+    }
+    private void startCommandListener() {
+        commandListenerThread = Executors.newSingleThreadExecutor();
+        System.out.println("Starting console command listener..."); // Debug message
+
+        commandListenerThread.execute(() -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Console commands active. Use 'move up', 'move down', 'move left', 'move right', or type 'exit' to quit.");
+
+            while (true) {
+                String input = scanner.nextLine();
+                if (input.equalsIgnoreCase("exit")) {
+                    System.out.println("Stopping console command listener...");
+                    break;
+                }
+
+                // Interpret and execute the command
+                interpreter.interpretCommand(input, pacman, maze);
+                repaint(); // Refresh the game screen after executing a command
+            }
+
+            commandListenerThread.shutdown();
+        });
     }
 
     // Multiplayer - Server Side (Host)
