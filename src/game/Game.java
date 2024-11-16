@@ -10,6 +10,9 @@ import Decorator.PacManDecorator;
 import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
 import Strategy.FrightenedMovement;
+import TemplateMethod.GameOverHandler;
+import TemplateMethod.MultiplayerGameOverHandler;
+import TemplateMethod.SinglePlayerGameOverHandler;
 import ui.GameOverScreen;
 
 //Gusto
@@ -383,8 +386,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
                 timer.stop(); // Stop the game loop
                 notifyCollisionObservers();
+
+                //Get the score
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
-                GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
+                int score = scoreCounter.getScore();
+
+                GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
+                handler.handleGameOver(false, score);
+
+                //GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;
             }
         }
@@ -394,7 +404,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (maze.allPelletsCollected()) {
             timer.stop(); // Stop the game loop
             ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
-            GameOverScreen.display("You Win! All pellets collected. Your score: " + scoreCounter.getScore());
+            int score = scoreCounter.getScore();
+
+            GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
+            handler.handleGameOver(true, score);
+            //GameOverScreen.display("You Win! All pellets collected. Your score: " + scoreCounter.getScore());
         }
     }
     public void addCollisionObserver(CollisionObserver observer) {
