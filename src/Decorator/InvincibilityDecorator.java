@@ -1,6 +1,7 @@
 package Decorator;
 
 import AbstractFactory.IPacMan;
+import PacManState.PacManState;
 import game.Maze;
 
 import java.awt.*;
@@ -44,6 +45,16 @@ public class InvincibilityDecorator extends PacManDecorator {
             // Render the base Pac-Man
             decoratedPacMan.render(g);
         }
+    }
+
+    @Override
+    public void setPacmanState(PacManState state) {
+        decoratedPacMan.setPacmanState(state);
+    }
+
+    @Override
+    public PacManState getPacmanState() {
+        return decoratedPacMan.getPacmanState();
     }
 
     private int getMouthDirectionAngle() {

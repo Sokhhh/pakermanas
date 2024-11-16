@@ -1,5 +1,7 @@
 package AbstractFactory;
 
+import PacManState.PacManState;
+import PacManState.NormalState;
 import Prototype.CloneableEntity;
 import game.Maze;
 import game.ScoreCounterSingleton;
@@ -11,12 +13,14 @@ public class SPPacMan implements IPacMan, CloneableEntity {
     private int dx, dy;  // Direction in x and y axis
     private int mouthAngle = 45;  // Starting mouth angle for animation
     private boolean mouthOpening = false;  // Controls mouth animation
+    private PacManState state;
 
     public SPPacMan(int startX, int startY) {
         this.x = startX;
         this.y = startY;
         this.dx = 0;
         this.dy = 0;
+        this.state = new NormalState();
     }
 
     public void setDirection(int dx, int dy) {
@@ -49,6 +53,7 @@ public class SPPacMan implements IPacMan, CloneableEntity {
     public void eatPellet(Maze maze){
         // Check if Pac-Man is on a pellet and eat it
         if (maze.eatPellet(x, y)) {
+            state.eatPellet(this, maze);
             ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance(); // Get the ScoreCounter instance
             scoreCounter.addScore(1);  // Increment score by 1 when a pellet is eaten
         }
@@ -72,6 +77,16 @@ public class SPPacMan implements IPacMan, CloneableEntity {
 
         // Draw Pac-Man with the correct mouth direction
         g.fillArc(x * pacmanSize, y * pacmanSize, pacmanSize, pacmanSize, startAngle, 360 - 2 * mouthAngle);
+    }
+
+    @Override
+    public PacManState getPacmanState() {
+        return this.state;
+    }
+
+    @Override
+    public void setPacmanState(PacManState state) {
+        this.state = state;
     }
 
     // Get Pac-Man's X position

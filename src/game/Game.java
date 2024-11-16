@@ -9,6 +9,8 @@ import Decorator.InvincibilityDecorator;
 import Decorator.PacManDecorator;
 import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
+import PacManState.DoublePointsState;
+import PacManState.TeleportingState;
 import Strategy.FrightenedMovement;
 import TemplateMethod.GameOverHandler;
 import TemplateMethod.MultiplayerGameOverHandler;
@@ -169,6 +171,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (pacman instanceof TeleporterDecorator) {
                 return pacman;  // Found the TeleporterDecorator
             }
+            pacman.setPacmanState(new TeleportingState());
             pacman = ((PacManDecorator) pacman).decoratedPacMan;  // Unwrap the decorator
         }
         return null;  // Return null if no TeleporterDecorator is found
@@ -179,6 +182,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (pacman instanceof DoublePointDecorator) {
                 return pacman;  // Found the DoublePointDecorator
             }
+            pacman.setPacmanState(new DoublePointsState());
             pacman = ((PacManDecorator) pacman).decoratedPacMan;  // Unwrap the decorator
         }
         return null;  // Return null if no DoublePointDecorator is found
@@ -381,6 +385,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     private void checkCollision() {
+        //System.out.println(pacman.getPacmanState());
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             if (vaiduoklis.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");

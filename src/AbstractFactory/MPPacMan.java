@@ -1,5 +1,6 @@
 package AbstractFactory;
 
+import PacManState.PacManState;
 import Prototype.CloneableEntity;
 import game.Maze;
 import game.ScoreCounterSingleton;
@@ -72,6 +73,16 @@ public class MPPacMan implements IPacMan, CloneableEntity {
 
         // Draw Pac-Man with the correct mouth direction
         g.fillArc(x * pacmanSize, y * pacmanSize, pacmanSize, pacmanSize, startAngle, 360 - 2 * mouthAngle);
+    }
+
+    @Override
+    public void setPacmanState(PacManState state) {
+
+    }
+
+    @Override
+    public PacManState getPacmanState() {
+        return null;
     }
 
     // Get Pac-Man's X position

@@ -1,6 +1,7 @@
 package Decorator;
 
 import AbstractFactory.IPacMan;
+import PacManState.PacManState;
 import game.Maze;
 import java.awt.*;
 import java.util.Random;
@@ -24,6 +25,16 @@ public class TeleporterDecorator extends PacManDecorator {
     public void render(Graphics g) {
         // Render the base Pac-Man with teleportation effects if needed
         decoratedPacMan.render(g);
+    }
+
+    @Override
+    public void setPacmanState(PacManState state) {
+        decoratedPacMan.setPacmanState(state);
+    }
+
+    @Override
+    public PacManState getPacmanState() {
+        return decoratedPacMan.getPacmanState();
     }
 
     // Method to teleport Pac-Man to a random valid position
