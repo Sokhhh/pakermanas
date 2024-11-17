@@ -9,7 +9,8 @@ import Decorator.InvincibilityDecorator;
 import Decorator.PacManDecorator;
 import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
-import Interpreter.CommandInterpreter;
+import Interpreter.Expression;
+import Interpreter.MovementCommand;
 import PacManState.DoublePointsState;
 import PacManState.TeleportingState;
 import Strategy.FrightenedMovement;
@@ -49,7 +50,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private Maze maze;
     private Map<Integer, Command> commandMap = new HashMap<>();
 
-    private CommandInterpreter interpreter; // Interpreter for console commands
+    private final Expression movementCommand; // Expression interface
     private ExecutorService commandListenerThread; // For listening to console commands
 
     private boolean isMultiplayer;
@@ -71,7 +72,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
 
-        this.interpreter = new CommandInterpreter();
+        this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
 
 
         this.maze = new Maze();  // Generate the maze
@@ -116,7 +117,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.isServer = isServer;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
-        this.interpreter = new CommandInterpreter();
+        this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
 
         this.maze = new Maze();  // Generate the maze
 
@@ -174,7 +175,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         timer = new Timer(100, this);
         timer.start();
 
-        this.interpreter = new CommandInterpreter();
+        this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
         startCommandListener();
     }
 
@@ -241,7 +242,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 }
 
                 // Interpret and execute the command
-                interpreter.interpretCommand(input, pacman, maze);
+                movementCommand.interpret(pacman, maze, input);
                 repaint(); // Refresh the game screen after executing a command
             }
 
