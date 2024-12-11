@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="github.spotbugs" type="repository">
+    <properties maven-id="com.github.spotbugs:spotbugs:3.1.12" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/spotbugs/spotbugs/3.1.12/spotbugs-3.1.12.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ow2/asm/asm/7.0/asm-7.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ow2/asm/asm-analysis/7.0/asm-analysis-7.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ow2/asm/asm-commons/7.0/asm-commons-7.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ow2/asm/asm-tree/7.0/asm-tree-7.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ow2/asm/asm-util/7.0/asm-util-7.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/bcel/bcel/6.3/bcel-6.3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/net/jcip/jcip-annotations/1.0/jcip-annotations-1.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/dom4j/dom4j/2.1.1/dom4j-2.1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/jaxen/jaxen/1.1.6/jaxen-1.1.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/commons-lang/commons-lang/2.6/commons-lang-2.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.8.0-beta2/slf4j-api-1.8.0-beta2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/spotbugs/spotbugs-annotations/3.1.12/spotbugs-annotations-3.1.12.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

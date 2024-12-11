@@ -46,5 +46,6 @@
     <orderEntry type="library" name="junit.jupiter.api" level="project" />
     <orderEntry type="library" exported="" name="junit.jupiter" level="project" />
     <orderEntry type="library" exported="" name="mockito.kotlin" level="project" />
+    <orderEntry type="library" exported="" name="github.spotbugs" level="project" />
   </component>
 </module>

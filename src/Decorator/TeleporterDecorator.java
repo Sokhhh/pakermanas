@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class TeleporterDecorator extends PacManDecorator {
 
-    private Random random;  // Random generator to pick teleport destination
+    private final Random random;  // Random generator to pick teleport destination
 
     public TeleporterDecorator(IPacMan decoratedPacMan) {
         super(decoratedPacMan);

@@ -3,7 +3,7 @@ package game;
 import java.awt.*;
 
 public class Maze {
-    private char[][] grid;
+    private final char[][] grid;
 //    public Maze() {
 //        grid = new char[30][30];
 //        generateMaze();
@@ -41,9 +41,9 @@ public class Maze {
         this.grid = grid;
     }
 
-    public char[][] getGrid() {
-        return grid;
-    }
+    //public char[][] getGrid() {
+    //    return grid;
+    //}
 
 
     public void render(Graphics g) {

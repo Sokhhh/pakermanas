@@ -31,39 +31,29 @@ import java.io.*;
 import java.net.*;
 import javax.swing.JPanel;
 import java.awt.Graphics;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
-    private Timer timer;
+    private final Timer timer;
     private IPacMan pacman;
-    private Maze maze;
+    private final Maze maze;
     public Map<Integer, Command> commandMap = new HashMap<>();
     private boolean isMultiplayer;
     private boolean isServer;
     private String serverIP;
-    public ServerSocket serverSocket;
-    public Socket clientSocket;
-    public PrintWriter out;
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
+    private PrintWriter out;
     private BufferedReader in;
     // Score display
 
-    private AbstractEntityFactory entityFactory;
-    private List<CollisionObserver> collisionObservers = new ArrayList<>();
-    private List<Vaiduoklis> vaiduoklis = new ArrayList<>();
-
-    //TESTING PURPOSES
-    public IPacMan getPacman() {
-        return pacman;
-    }
-    public List<Vaiduoklis> getVaiduoklis() {
-        return vaiduoklis;
-    }
-    public Timer getTimer() {
-        return timer;
-    }
+    private final AbstractEntityFactory entityFactory;
+    private final List<CollisionObserver> collisionObservers = new ArrayList<>();
+    private final List<Vaiduoklis> vaiduoklis = new ArrayList<>();
 
     public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
         this.isMultiplayer = isMultiplayer;
@@ -220,8 +210,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             clientSocket = serverSocket.accept();  // Accept client connection
             System.out.println("Client connected.");
 
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 
             // Thread to listen for ghost movement from the client
             new Thread(this::listenToClient).start();
@@ -234,8 +224,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private void startClient() {
         try {
             clientSocket = new Socket(serverIP, 12345);  // Connect to the host server
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 
             // Thread to listen for Pac-Man movement from the server
             new Thread(this::listenToServer).start();
@@ -307,10 +297,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         // Check if Pac-Man collects a power pellet
         if (maze.eatInvincibilityPellet(pacman.getX(), pacman.getY())) {
-            if (pacman instanceof InvincibilityDecorator) {
                 System.out.println("TEST0");
                 ((InvincibilityDecorator) pacman).activateInvincibility();  // Activate invincibility
-            }
         }
 
         if (maze.eatDoublePointsPellet(pacman.getX(), pacman.getY())) {

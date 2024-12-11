@@ -22,7 +22,7 @@ public class ScoreCounterSingleton {
                 }
             }
         }
-        return instance;
+        return instance.copy();
     }
 
     // Private constructor prevents instantiation from other classes
@@ -47,5 +47,11 @@ public class ScoreCounterSingleton {
 
     public void incrementScore(int i) {
         this.score = this.score + i;
+    }
+
+    private ScoreCounterSingleton copy()
+    {
+        ScoreCounterSingleton copy = instance;
+        return copy;
     }
 }

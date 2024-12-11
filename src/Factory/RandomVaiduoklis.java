@@ -10,8 +10,7 @@ import java.util.Random;
 
 public class RandomVaiduoklis implements Vaiduoklis {
     private int x, y;
-    private Random random;
-    private int dx, dy;
+    private final Random random;
     private MovementStrategy movementStrategy;
 
     public RandomVaiduoklis(int startX, int startY, MovementStrategy strategy) {
@@ -55,8 +54,6 @@ public class RandomVaiduoklis implements Vaiduoklis {
     }
 
     public void setDirection(int dx, int dy) {
-        this.dx = dx;
-        this.dy = dy;
     }
 
     public void setMovementStrategy(MovementStrategy strategy){

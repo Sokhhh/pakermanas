@@ -6,7 +6,7 @@ import game.Maze;
 // Maze2Builder.java
 // Maze2Builder.java
 public class Maze2Builder implements MazeBuilder {
-    private char[][] grid;
+    private final char[][] grid;
 
     public Maze2Builder() {
         grid = new char[25][25]; // Define a 25x25 grid

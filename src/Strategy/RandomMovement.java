@@ -7,7 +7,7 @@ import game.Maze;
 import java.util.Random;
 
 public class RandomMovement implements MovementStrategy{
-    private Random random = new Random();
+    private final Random random = new Random();
 
     @Override
     public void move(Vaiduoklis ghost, Maze maze, IPacMan pacman) {
@@ -20,6 +20,7 @@ public class RandomMovement implements MovementStrategy{
             case 1: if (!maze.isWall(x - 1, y)) x--; break; // Move left
             case 2: if (!maze.isWall(x, y + 1)) y++; break; // Move down
             case 3: if (!maze.isWall(x, y - 1)) y--; break; // Move up
+            default: break;
         }
 
         ghost.setPosition(x, y);

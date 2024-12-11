@@ -3,7 +3,7 @@ import game.Maze;
 
 // Maze1Builder.java
 public class Maze1Builder implements MazeBuilder {
-    private char[][] grid;
+    private final char[][] grid;
 
     public Maze1Builder() {
         grid = new char[23][23];

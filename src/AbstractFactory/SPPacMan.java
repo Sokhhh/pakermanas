@@ -1,6 +1,7 @@
 package AbstractFactory;
 
 import Prototype.CloneableEntity;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import game.Maze;
 import game.ScoreCounterSingleton;
 
@@ -93,6 +94,7 @@ public class SPPacMan implements IPacMan, CloneableEntity {
     public int getDx(){return dx;}
     public int getDy(){return dy;}
 
+    @SuppressFBWarnings("CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE")
     @Override
     public SPPacMan clone() {
         return new SPPacMan(this.x, this.y);

@@ -2,7 +2,7 @@ package BuilderPattern;
 import game.Maze;
 
 public class MazeDirector {
-    private MazeBuilder builder;
+    private final MazeBuilder builder;
 
     public MazeDirector(MazeBuilder builder) {
         this.builder = builder;

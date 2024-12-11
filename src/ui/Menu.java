@@ -7,7 +7,7 @@ import game.Game;
 import SoundAdapter.SoundPlayer;
 
 public class Menu {
-    private SoundPlayer backgroundMusic;
+    private final SoundPlayer backgroundMusic;
 
     public Menu(SoundPlayer backgroundMusic) {
         this.backgroundMusic = backgroundMusic;
@@ -39,7 +39,7 @@ public class Menu {
                 if (selectedMaze != null) {
                     Game game;
                     if (selectedMaze.equals("Default Map")) {
-                        game = new Game(false, false);;  // Use default constructor for the default map
+                        game = new Game(false, false);// Use default constructor for the default map
                     } else {
                         game = new Game(selectedMaze);  // Pass the selected maze type to the Game class
                     }

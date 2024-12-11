@@ -3,7 +3,7 @@ package Command;
 import AbstractFactory.IPacMan;
 
 public class MoveLeftCommand implements Command {
-    private IPacMan pacman;
+    private final IPacMan pacman;
 
     public MoveLeftCommand(IPacMan pacman) {
         this.pacman = pacman;

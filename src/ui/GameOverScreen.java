@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class GameOverScreen extends JPanel {
 
-    private String message;
+    private final String message;
 
     public GameOverScreen(String message) {
         this.message = message;

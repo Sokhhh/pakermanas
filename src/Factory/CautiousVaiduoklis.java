@@ -9,7 +9,6 @@ import java.awt.Color;
 
 public class CautiousVaiduoklis implements Vaiduoklis {
     private int x, y;
-    private int dx, dy;
     private MovementStrategy movementStrategy;
 
     public CautiousVaiduoklis(int startX, int startY, MovementStrategy strategy) {
@@ -52,8 +51,6 @@ public class CautiousVaiduoklis implements Vaiduoklis {
     }
 
     public void setDirection(int dx, int dy) {
-        this.dx = dx;
-        this.dy = dy;
     }
 
     public void setMovementStrategy(MovementStrategy strategy){

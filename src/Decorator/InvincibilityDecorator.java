@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class InvincibilityDecorator extends PacManDecorator {
 
-    private int mouthAngle = 45;  // Starting mouth angle for animation
+    private static final int mouthAngle = 45;  // Starting mouth angle for animation
     private boolean invincibilityActive;
     private long invincibilityEndTime;
     private static final long DEFAULT_INVINCIBILITY_DURATION = 10000; // Default duration: 10 seconds

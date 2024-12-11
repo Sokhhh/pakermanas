@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class DoublePointDecorator extends PacManDecorator {
 
-    private int mouthAngle = 45;  // Starting mouth angle for animation
+    private static final int mouthAngle = 45;  // Starting mouth angle for animation
     private boolean doublePointsActive;
     private long doublePointsEndTime;
     private static final long DEFAULT_DOUBLE_POINTS_DURATION = 10000; // Default duration: 10 seconds
