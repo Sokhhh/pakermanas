@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+import ui.Tracker;
+
 public class Game extends JPanel implements ActionListener, KeyListener {
     private final Timer timer;
     private IPacMan pacman;
@@ -54,6 +56,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private final AbstractEntityFactory entityFactory;
     private final List<CollisionObserver> collisionObservers = new ArrayList<>();
     private final List<Vaiduoklis> vaiduoklis = new ArrayList<>();
+
+    private final Tracker fpsTracker = new Tracker();
 
     public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
         this.isMultiplayer = isMultiplayer;
@@ -182,16 +186,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         return null;  // Return null if no DoublePointDecorator is found
     }
 
-
-
     private void initializeGhosts() {
-        // Add ghosts based on factory method
-        if (isMultiplayer) {
-            vaiduoklis.add(entityFactory.createVaiduoklis("Zaidejas", 11, 10));
-        } else {
-            vaiduoklis.add(entityFactory.createVaiduoklis("Aggressive", 11, 10));
-            vaiduoklis.add(entityFactory.createVaiduoklis("Random", 11, 11));
-            vaiduoklis.add(entityFactory.createVaiduoklis("Cautious", 11, 12));
+        // Add 100 ghosts to the same starting position (11, 10)
+        for (int i = 0; i < 10000; i++) {
+            if (isMultiplayer) {
+                vaiduoklis.add(entityFactory.createVaiduoklis("Zaidejas", 11, 10));
+            } else {
+                // You can customize ghost types or keep them the same for simplicity
+                String ghostType = (i % 3 == 0) ? "Aggressive" : (i % 3 == 1) ? "Random" : "Cautious";
+                vaiduoklis.add(entityFactory.createVaiduoklis(ghostType, 11, 10));
+            }
         }
     }
 
@@ -297,8 +301,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         // Check if Pac-Man collects a power pellet
         if (maze.eatInvincibilityPellet(pacman.getX(), pacman.getY())) {
-                System.out.println("TEST0");
-                ((InvincibilityDecorator) pacman).activateInvincibility();  // Activate invincibility
+            System.out.println("TEST0");
+            ((InvincibilityDecorator) pacman).activateInvincibility();  // Activate invincibility
         }
 
         if (maze.eatDoublePointsPellet(pacman.getX(), pacman.getY())) {
@@ -332,6 +336,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 sendGhostPosition();  // Send Ghost's position to the host
             }
         }
+
+        fpsTracker.update(); // Update FPS tracker
         repaint();
     }
 
@@ -354,7 +360,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         int x = getWidth() - metrics.stringWidth(scoreText) - 10; // 10 pixels from the right
         int y = metrics.getHeight(); // Height of the font
         g.drawString(scoreText, x, y);  // Draw score
+
+        // Render FPS and MS tracker
+        fpsTracker.render(g);
     }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
