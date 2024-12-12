@@ -187,12 +187,18 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     private void initializeGhosts() {
-        // Add 100 ghosts to the same starting position (11, 10)
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 100; i++) {
             if (isMultiplayer) {
-                vaiduoklis.add(entityFactory.createVaiduoklis("Zaidejas", 11, 10));
+                if (i == 0) {
+                    // Only the first ghost is a "Zaidejas"
+                    vaiduoklis.add(entityFactory.createVaiduoklis("Zaidejas", 11, 10));
+                } else {
+                    // Other ghosts are initialized similarly to the single-player logic
+                    String ghostType = (i % 3 == 0) ? "Aggressive" : (i % 3 == 1) ? "Random" : "Cautious";
+                    vaiduoklis.add(entityFactory.createVaiduoklis(ghostType, 11, 10));
+                }
             } else {
-                // You can customize ghost types or keep them the same for simplicity
+                // Single-player logic remains unchanged
                 String ghostType = (i % 3 == 0) ? "Aggressive" : (i % 3 == 1) ? "Random" : "Cautious";
                 vaiduoklis.add(entityFactory.createVaiduoklis(ghostType, 11, 10));
             }
