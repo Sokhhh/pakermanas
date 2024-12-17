@@ -19,6 +19,8 @@ import TemplateMethod.GameOverHandler;
 import TemplateMethod.MultiplayerGameOverHandler;
 import TemplateMethod.SinglePlayerGameOverHandler;
 import Visitor.CollisionVisitor;
+import Visitor.PowerUpVisitor;
+import Visitor.ScoreVisitor;
 import ui.GameOverScreen;
 
 //Gusto
@@ -187,29 +189,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.pacman = new InvincibilityDecorator(new DoublePointDecorator(new TeleporterDecorator(entityFactory.createPacMan())));
     }
 
-    private IPacMan getTeleporterDecorator(IPacMan pacman) {
-        while (pacman instanceof PacManDecorator) {
-            if (pacman instanceof TeleporterDecorator) {
-                return pacman;  // Found the TeleporterDecorator
-            }
-            pacman.setPacmanState(new TeleportingState());
-            pacman = ((PacManDecorator) pacman).decoratedPacMan;  // Unwrap the decorator
-        }
-        return null;  // Return null if no TeleporterDecorator is found
-    }
-
-    private IPacMan getDoublePointDecorator(IPacMan pacman) {
-        while (pacman instanceof PacManDecorator) {
-            if (pacman instanceof DoublePointDecorator) {
-                return pacman;  // Found the DoublePointDecorator
-            }
-            pacman.setPacmanState(new DoublePointsState());
-            pacman = ((PacManDecorator) pacman).decoratedPacMan;  // Unwrap the decorator
-        }
-        return null;  // Return null if no DoublePointDecorator is found
-    }
-
-
 
     private void initializeGhosts() {
         // Add ghosts based on factory method
@@ -341,30 +320,18 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         pacman.move(maze);  // Move Pac-Man based on the current direction
-        pacman.eatPellet(maze);
+
+        // Use PowerUpVisitor to check for power-ups
+        PowerUpVisitor powerUpVisitor = new PowerUpVisitor(pacman, maze);
+        ScoreVisitor scoreVisitor = new ScoreVisitor(pacman);
+
+        for (Pellet pellet : maze.getPellets()) {
+            pellet.accept(scoreVisitor);
+            pellet.accept(powerUpVisitor);
+        }
+
 
         checkWinCondition();
-
-        // Check if Pac-Man collects a power pellet
-        if (maze.eatInvincibilityPellet(pacman.getX(), pacman.getY())) {
-            if (pacman instanceof InvincibilityDecorator) {
-                ((InvincibilityDecorator) pacman).activateInvincibility();  // Activate invincibility
-            }
-        }
-
-        if (maze.eatDoublePointsPellet(pacman.getX(), pacman.getY())) {
-            IPacMan doublePointPacMan = getDoublePointDecorator(pacman);
-            if (doublePointPacMan != null && doublePointPacMan instanceof DoublePointDecorator) {
-                ((DoublePointDecorator) doublePointPacMan).activateDoublePoints();  // Activate double points
-            }
-        }
-
-        if (maze.eatTeleporterPellet(pacman.getX(), pacman.getY())) {
-            IPacMan teleporterPacMan = getTeleporterDecorator(pacman);
-            if (teleporterPacMan != null && teleporterPacMan instanceof TeleporterDecorator) {
-                ((TeleporterDecorator) teleporterPacMan).teleport(maze);  // Activate double points
-            }
-        }
 
         // Use CollisionVisitor to check collisions between PacMan and ghosts/pellets
         CollisionVisitor collisionVisitor = new CollisionVisitor(pacman);
@@ -390,6 +357,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
         repaint();
     }
+
 
 
     @Override
@@ -433,6 +401,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+
     private void checkCollision() {
         // Collision checks with ghosts
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
@@ -453,6 +422,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             }
         }
     }
+
 
     private void checkWinCondition() {
         if (maze.allPelletsCollected()) {

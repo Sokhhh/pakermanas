@@ -47,7 +47,7 @@ public class Maze {
         return grid;
     }
 
-    // New function to get all pellets in the maze
+
     public List<Pellet> getPellets() {
         List<Pellet> pellets = new ArrayList<>();
 
@@ -56,16 +56,16 @@ public class Maze {
             for (int j = 0; j < grid[i].length; j++) {  // Iterate over columns
                 if (grid[i][j] == '.') {
                     // Regular Pellet
-                    pellets.add(PelletFactory.getPellet("regular", j, i));
+                    pellets.add(PelletFactory.getPellet("regular", j, i));  // The PelletFactory will handle color, size, and position
                 } else if (grid[i][j] == 'I') {
                     // Invincibility Pellet
-                    pellets.add(PelletFactory.getPellet("invincibility", j, i));
+                    pellets.add(PelletFactory.getPellet("invincibility", j, i));  // The PelletFactory will handle color, size, and position
                 } else if (grid[i][j] == 'D') {
                     // Double Points Pellet
-                    pellets.add(PelletFactory.getPellet("doublePoints", j, i));
+                    pellets.add(PelletFactory.getPellet("doublePoints", j, i));  // The PelletFactory will handle color, size, and position
                 } else if (grid[i][j] == 'T') {
                     // Teleporter Pellet
-                    pellets.add(PelletFactory.getPellet("teleporter", j, i));
+                    pellets.add(PelletFactory.getPellet("teleporter", j, i));  // The PelletFactory will handle color, size, and position
                 }
             }
         }
@@ -85,19 +85,19 @@ public class Maze {
                     g.drawRect(j * 20, i * 20, 20, 20);
                 } else if (grid[i][j] == '.') {
                     // Create regular Pellet at the position (j, i)
-                    Pellet regularPellet = PelletFactory.getPellet("regular", j, i);
+                    Pellet regularPellet = PelletFactory.getPellet("regular", j, i);  // The PelletFactory handles the creation
                     regularPellet.render(g, j, i);  // Pass position to render method
                 } else if (grid[i][j] == 'I') {
                     // Create invincibility Pellet at the position (j, i)
-                    Pellet invincibilityPellet = PelletFactory.getPellet("invincibility", j, i);
+                    Pellet invincibilityPellet = PelletFactory.getPellet("invincibility", j, i);  // The PelletFactory handles the creation
                     invincibilityPellet.render(g, j, i);  // Pass position to render method
                 } else if (grid[i][j] == 'D') {
                     // Create doublePoints Pellet at the position (j, i)
-                    Pellet doublePointsPellet = PelletFactory.getPellet("doublePoints", j, i);
+                    Pellet doublePointsPellet = PelletFactory.getPellet("doublePoints", j, i);  // The PelletFactory handles the creation
                     doublePointsPellet.render(g, j, i);  // Pass position to render method
                 } else if (grid[i][j] == 'T') {
                     // Create teleporter Pellet at the position (j, i)
-                    Pellet teleporterPellet = PelletFactory.getPellet("teleporter", j, i);
+                    Pellet teleporterPellet = PelletFactory.getPellet("teleporter", j, i);  // The PelletFactory handles the creation
                     teleporterPellet.render(g, j, i);  // Pass position to render method
                 }
             }
@@ -111,37 +111,37 @@ public class Maze {
     }
 
     public boolean eatPellet(int x, int y) {
-        if (grid[y][x] == '.') {
-            grid[y][x] = ' ';  // Pac-Man eats the pellet
+        char pelletType = grid[y][x];  // Get the character representing the pellet at the position
 
-            return true;  // Indicate that a pellet was eaten
-        }
-        return false;  // No pellet eaten
-    }
+        // Check if the pellet exists and handle accordingly
+        switch (pelletType) {
+            case '.':
+                // Regular pellet
+                grid[y][x] = ' ';  // Remove the pellet from the grid
+                return true;
 
-    // Other methods for eating different types of pellets...
-    public boolean eatInvincibilityPellet(int x, int y) {
-        if (grid[y][x] == 'I') {
-            grid[y][x] = ' ';  // Pac-Man eats the invincibility pellet
-            return true;
-        }
-        return false;
-    }
+            case 'I':
+                // Invincibility Pellet
+                grid[y][x] = ' ';  // Remove the invincibility pellet
+                // Implement logic for invincibility (e.g., activate power-up)
+                return true;
 
-    public boolean eatDoublePointsPellet(int x, int y) {
-        if (grid[y][x] == 'D') {
-            grid[y][x] = ' ';  // Pac-Man eats the double points pellet
-            return true;
-        }
-        return false;
-    }
+            case 'D':
+                // Double Points Pellet
+                grid[y][x] = ' ';  // Remove the double points pellet
+                // Implement logic for double points (e.g., activate power-up)
+                return true;
 
-    public boolean eatTeleporterPellet(int x, int y) {
-        if (grid[y][x] == 'T') {
-            grid[y][x] = ' ';  // Pac-Man eats the teleporter pellet
-            return true;
+            case 'T':
+                // Teleporter Pellet
+                grid[y][x] = ' ';  // Remove the teleporter pellet
+                // Implement logic for teleportation (e.g., teleport Pac-Man)
+                return true;
+
+            default:
+                // If it's not a valid pellet, do nothing
+                return false;
         }
-        return false;
     }
 
     public boolean allPelletsCollected() {
