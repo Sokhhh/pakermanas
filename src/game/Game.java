@@ -12,6 +12,7 @@ import Factory.Vaiduoklis;
 import Flyweight.Pellet;
 import Interpreter.Expression;
 import Interpreter.MovementCommand;
+import Memento.GameMemento;
 import PacManState.DoublePointsState;
 import PacManState.TeleportingState;
 import Strategy.FrightenedMovement;
@@ -34,6 +35,7 @@ import Bridge.DeathSound;
 //Deivio
 import Command.*;
 import AbstractFactory.*;
+import Memento.GameCaretaker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -65,6 +67,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private PrintWriter out;
     private BufferedReader in;
     // Score display
+
+    private final GameCaretaker caretaker = new GameCaretaker();
 
     private AbstractEntityFactory entityFactory;
     private List<CollisionObserver> collisionObservers = new ArrayList<>();
@@ -108,12 +112,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         setFocusable(true);
         addKeyListener(this);
-
         timer = new Timer(100, this);
         timer.start();
 
         // Start the console command listener
         startCommandListener();
+        saveGameState();
     }
 
     public Game(boolean isMultiplayer, boolean isServer) {
@@ -145,10 +149,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);
         addKeyListener(this);
 
+
         timer = new Timer(100, this);
         timer.start();
         // Start the console command listener
         startCommandListener();
+        saveGameState();
     }
     // Constructor for single-player with selected maze type
     public Game(String mazeType) {
@@ -415,7 +421,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 int score = scoreCounter.getScore();
 
                 GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
-                handler.handleGameOver(false, score);
+                handler.handleGameOver(false, score, this);
 
                 // GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;
@@ -431,7 +437,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             int score = scoreCounter.getScore();
 
             GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
-            handler.handleGameOver(true, score);
+            handler.handleGameOver(true, score, this);
             //GameOverScreen.display("You Win! All pellets collected. Your score: " + scoreCounter.getScore());
         }
     }
@@ -448,4 +454,27 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public void keyReleased(KeyEvent e) {}
     @Override
     public void keyTyped(KeyEvent e) {}
+
+
+    public void saveGameState() {
+        int currentScore = ScoreCounterSingleton.getInstance().getScore();
+        caretaker.saveState(new GameMemento(maze, pacman, vaiduoklis, currentScore));
+    }
+
+    public void restoreGameState() {
+        GameMemento memento = caretaker.getSavedState();
+        if (memento != null) {
+            this.pacman = memento.getPacman();
+            this.vaiduoklis = memento.getGhosts();
+            ScoreCounterSingleton.getInstance().setScore(memento.getScore());
+            this.maze = memento.getMaze();
+
+            initializeCommands();
+            addKeyListener(this);
+            timer.start(); // Resume the game loop
+            repaint();     // Refresh the screen
+        } else {
+            System.out.println("No saved state to restore!");
+        }
+    }
 }

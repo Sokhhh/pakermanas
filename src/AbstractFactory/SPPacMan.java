@@ -8,8 +8,9 @@ import game.ScoreCounterSingleton;
 import Visitor.Visitor;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class SPPacMan implements IPacMan, CloneableEntity {
+public class SPPacMan implements IPacMan, CloneableEntity, Serializable {
     private int x, y;
     private int dx, dy;  // Direction in x and y axis
     private int mouthAngle = 45;  // Starting mouth angle for animation

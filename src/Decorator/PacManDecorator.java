@@ -4,8 +4,9 @@ import AbstractFactory.IPacMan;
 import Visitor.Visitor;
 import game.Maze;
 import java.awt.*;
+import java.io.Serializable;
 
-public abstract class PacManDecorator implements IPacMan {
+public abstract class PacManDecorator implements IPacMan, Serializable {
     public IPacMan decoratedPacMan;
 
     public PacManDecorator(IPacMan decoratedPacMan) {

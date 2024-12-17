@@ -6,8 +6,9 @@ import game.Maze;
 import Visitor.Visitor;
 import java.awt.Graphics;
 import java.awt.Color;
+import java.io.Serializable;
 
-public class AggressiveVaiduoklis implements Vaiduoklis {
+public class AggressiveVaiduoklis implements Vaiduoklis, Serializable {
     private int x, y;
     private int dx, dy;
     private MovementStrategy movementStrategy;
