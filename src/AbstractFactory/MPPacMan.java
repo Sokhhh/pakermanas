@@ -6,8 +6,9 @@ import game.Maze;
 import game.ScoreCounterSingleton;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class MPPacMan implements IPacMan, CloneableEntity {
+public class MPPacMan implements IPacMan, CloneableEntity, Serializable {
     private int x, y;
     private int dx, dy;  // Direction in x and y axis
     private int mouthAngle = 45;  // Starting mouth angle for animation

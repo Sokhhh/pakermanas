@@ -39,7 +39,7 @@ public class Menu {
                 if (selectedMaze != null) {
                     Game game;
                     if (selectedMaze.equals("Default Map")) {
-                        game = new Game(false, false);;  // Use default constructor for the default map
+                        game = new Game(false, false, null);;  // Use default constructor for the default map
                     } else {
                         game = new Game(selectedMaze);  // Pass the selected maze type to the Game class
                     }
@@ -59,7 +59,14 @@ public class Menu {
         multiPlayerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 backgroundMusic.stop();
-                Game game = new Game(true, true);  // true for multiplayer, true for server
+
+                String token = JOptionPane.showInputDialog(
+                        frame,
+                        "Enter the password:",
+                        "Join Multiplayer Game",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+                Game game = new Game(true, true, token);  // true for multiplayer, true for server
                 JFrame gameFrame = new JFrame("Pac-Man Game");
                 gameFrame.add(game);
                 gameFrame.setSize(600, 600);
@@ -82,15 +89,23 @@ public class Menu {
                         JOptionPane.PLAIN_MESSAGE
                 );
 
+                String token = JOptionPane.showInputDialog(
+                        frame,
+                        "Enter the password:",
+                        "Join Multiplayer Game",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+
                 // If the player clicked "OK" and provided an IP address
                 if (serverIP != null && !serverIP.trim().isEmpty()) {
-                    Game game = new Game(true, false, serverIP);  // true for multiplayer, false for client, with server IP
+                    Game game = new Game(true, false, serverIP, token);  // true for multiplayer, false for client, with server IP
                     JFrame gameFrame = new JFrame("Pac-Man Game");
                     gameFrame.add(game);
                     gameFrame.setSize(600, 600);
                     gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     gameFrame.setVisible(true);
                     gameFrame.setResizable(false);
+                    frame.dispose();
                 } else {
                     JOptionPane.showMessageDialog(frame, "Invalid IP address. Please try again.");
                 }

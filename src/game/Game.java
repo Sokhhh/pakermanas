@@ -11,7 +11,6 @@ import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
 import Interpreter.Expression;
 import Interpreter.MovementCommand;
-import Memento.GameMemento;
 import PacManState.DoublePointsState;
 import PacManState.TeleportingState;
 import Strategy.FrightenedMovement;
@@ -32,6 +31,10 @@ import Bridge.DeathSound;
 import Command.*;
 import AbstractFactory.*;
 import Memento.GameCaretaker;
+import Memento.GameMemento;
+import Proxy.NetworkProxy;
+import Proxy.ServerProxy;
+import Proxy.ClientProxy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -64,15 +67,18 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private BufferedReader in;
     // Score display
 
+    private NetworkProxy networkProxy;
     private final GameCaretaker caretaker = new GameCaretaker();
+    private String token;
 
     private AbstractEntityFactory entityFactory;
     private List<CollisionObserver> collisionObservers = new ArrayList<>();
     private List<Vaiduoklis> vaiduoklis = new ArrayList<>();
 
-    public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
+    public Game(boolean isMultiplayer, boolean isServer, String serverIP, String token) {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
+        this.token = token;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
 
@@ -99,12 +105,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
-            if (isServer) {
-                startServer();
-            } else {
-                startClient();
-            }
+            networkProxy = isServer ? new ServerProxy(12345,token) : new ClientProxy(serverIP, 12345, token);
         }
+//        if (isMultiplayer) {
+//            if (isServer) {
+//                startServer();
+//            } else {
+//                startClient();
+//            }
+//        }
 
         setFocusable(true);
         addKeyListener(this);
@@ -113,12 +122,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         // Start the console command listener
         startCommandListener();
+        initializeGame();
         saveGameState();
     }
 
-    public Game(boolean isMultiplayer, boolean isServer) {
+    public Game(boolean isMultiplayer, boolean isServer, String token) {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
+        this.token = token;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
         this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
@@ -135,12 +146,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
-            if (isServer) {
-                startServer();
-            } else {
-                startClient();
-            }
+            networkProxy = isServer ? new ServerProxy(12345,token) : new ClientProxy(serverIP, 12345, token);
         }
+
+//        if (isMultiplayer) {
+//            if (isServer) {
+//                startServer();
+//            } else {
+//                startClient();
+//            }
+//        }
 
         setFocusable(true);
         addKeyListener(this);
@@ -150,6 +165,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         timer.start();
         // Start the console command listener
         startCommandListener();
+        initializeGame();
         saveGameState();
     }
     // Constructor for single-player with selected maze type
@@ -183,6 +199,13 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
         startCommandListener();
+    }
+
+    private void initializeGame() {
+        // Game setup logic (e.g., loading Pac-Man, ghosts, maze)
+        if (isMultiplayer) {
+            listenToNetwork(); // Start listening for incoming messages
+        }
     }
 
     private void initializePacMan(){
@@ -328,18 +351,54 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     // Send Pac-Man's position (from host to client)
     private void sendPacmanPosition() {
-        if (out != null && isServer) {
-            out.println(pacman.getX() + "," + pacman.getY());  // Send Pac-Man position to client
+//        if (out != null && isServer) {
+//            out.println(pacman.getX() + "," + pacman.getY());  // Send Pac-Man position to client
+//        }
+        if (networkProxy != null && isServer) {
+            networkProxy.send(pacman.getX() + "," + pacman.getY());
         }
     }
 
     // Send Ghost's position (from client to host)
     private void sendGhostPosition() {
-        if (out != null && !isServer) {
-            //Ghost clientGhost = ghosts.get(0);  // In multiplayer, assume first ghost is controlled by the client
+//        if (out != null && !isServer) {
+//            //Ghost clientGhost = ghosts.get(0);  // In multiplayer, assume first ghost is controlled by the client
+//            Vaiduoklis clientGhost = vaiduoklis.get(0);
+//            out.println(clientGhost.getX() + "," + clientGhost.getY());
+//        }
+        if (networkProxy != null && !isServer) {
             Vaiduoklis clientGhost = vaiduoklis.get(0);
-            out.println(clientGhost.getX() + "," + clientGhost.getY());
+            networkProxy.send(clientGhost.getX() + "," + clientGhost.getY());
         }
+    }
+
+    private void listenToNetwork() {
+        if (networkProxy == null) return;
+
+        new Thread(() -> {
+            while (true) {
+                String message = networkProxy.receive();
+                if (message == null) {
+                    networkProxy.close();
+                    System.exit(0);
+                    break;
+                }
+
+                String[] position = message.split(",");
+                int x = Integer.parseInt(position[0]);
+                int y = Integer.parseInt(position[1]);
+
+                if (isServer) {
+                    // Update ghost position
+                    if (!vaiduoklis.isEmpty()) vaiduoklis.get(0).setPosition(x, y);
+                } else {
+                    // Update Pac-Man position
+                    pacman.setPosition(x, y);
+                }
+
+                repaint();
+            }
+        }).start();
     }
 
     @Override
@@ -448,6 +507,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 handler.handleGameOver(false, score, this);
 
                 //GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
+                if(isMultiplayer)
+                {
+                    networkProxy.close();
+                }
                 break;
             }
         }
@@ -461,6 +524,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
             GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
             handler.handleGameOver(true, score, this);
+            if(isMultiplayer)
+            {
+                networkProxy.close();
+            }
             //GameOverScreen.display("You Win! All pellets collected. Your score: " + scoreCounter.getScore());
         }
     }

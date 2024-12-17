@@ -3,8 +3,9 @@ import Factory.Vaiduoklis;
 import Strategy.MovementStrategy;
 import game.Maze;
 import java.awt.*;
+import java.io.Serializable;
 
-public class MPGhost implements Vaiduoklis {
+public class MPGhost implements Vaiduoklis, Serializable {
     private int x, y;
     private int dx, dy;  // Direction in x and y axis
 
