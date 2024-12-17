@@ -2,6 +2,7 @@ package AbstractFactory;
 import Factory.Vaiduoklis;
 import Strategy.MovementStrategy;
 import game.Maze;
+import Visitor.Visitor;
 import java.awt.*;
 import java.io.Serializable;
 
@@ -58,6 +59,10 @@ public class MPGhost implements Vaiduoklis, Serializable {
         return this.x == pacman.getX() && this.y == pacman.getY();
     }
 
-    public void setMovementStrategy(MovementStrategy strategy){}
+    public void setMovementStrategy(MovementStrategy strategy) {}
 
+    // Accept method for the Visitor pattern
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Allow the visitor (like CollisionVisitor) to visit this Ghost
+    }
 }

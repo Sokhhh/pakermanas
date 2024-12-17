@@ -4,6 +4,7 @@ import PacManState.PacManState;
 import Prototype.CloneableEntity;
 import game.Maze;
 import game.ScoreCounterSingleton;
+import Visitor.Visitor;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -48,7 +49,7 @@ public class MPPacMan implements IPacMan, CloneableEntity, Serializable {
     }
 
     @Override
-    public void eatPellet(Maze maze){
+    public void eatPellet(Maze maze) {
         // Check if Pac-Man is on a pellet and eat it
         if (maze.eatPellet(x, y)) {
             ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance(); // Get the ScoreCounter instance
@@ -78,12 +79,12 @@ public class MPPacMan implements IPacMan, CloneableEntity, Serializable {
 
     @Override
     public void setPacmanState(PacManState state) {
-
+        // Set state if needed (empty in this class for now)
     }
 
     @Override
     public PacManState getPacmanState() {
-        return null;
+        return null;  // Return state if needed (empty in this class for now)
     }
 
     // Get Pac-Man's X position
@@ -102,11 +103,21 @@ public class MPPacMan implements IPacMan, CloneableEntity, Serializable {
         this.y = y;
     }
 
-    public int getDx(){return dx;}
-    public int getDy(){return dy;}
+    public int getDx() {
+        return dx;
+    }
+
+    public int getDy() {
+        return dy;
+    }
 
     @Override
     public MPPacMan clone() {
         return new MPPacMan(this.x, this.y);
+    }
+
+    // Accept method for the Visitor pattern
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Allow the CollisionVisitor (or other visitors) to visit this PacMan
     }
 }

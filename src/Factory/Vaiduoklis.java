@@ -3,6 +3,7 @@ package Factory;
 
 import AbstractFactory.IPacMan;
 import Strategy.MovementStrategy;
+import Visitor.Visitor;
 import game.Maze;
 import java.awt.Graphics;
 
@@ -20,4 +21,5 @@ public interface Vaiduoklis {
     void setDirection(int dx, int dy);
 
     void setMovementStrategy(MovementStrategy strategy);
+    void accept(Visitor visitor);
 }
