@@ -1,5 +1,8 @@
 package game;
 
+import Flyweight.Pellet;
+import Flyweight.PelletFactory;
+
 import java.awt.*;
 
 public class Maze {
@@ -56,20 +59,17 @@ public class Maze {
                     g.setColor(Color.BLUE);  // Wall color
                     g.drawRect(j * 20, i * 20, 20, 20);
                 } else if (grid[i][j] == '.') {
-                    g.setColor(Color.WHITE);  // Pellet color
-                    g.fillOval(j * 20 + 7, i * 20 + 7, 6, 6);
-                } else if (grid[i][j] == 'T') {
-                    g.setColor(Color.WHITE);  // Pellet color
-                    int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
-                    g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
-                } else if (grid[i][j] == 'D') {
-                    g.setColor(Color.YELLOW);  // Pellet color
-                    int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
-                    g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
+                    Pellet regularPellet = PelletFactory.getPellet("regular");
+                    regularPellet.render(g, j, i);
                 } else if (grid[i][j] == 'I') {
-                    g.setColor(Color.CYAN);  // Pellet color
-                    int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
-                    g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
+                    Pellet invincibilityPellet = PelletFactory.getPellet("invincibility");
+                    invincibilityPellet.render(g, j, i);
+                } else if (grid[i][j] == 'D') {
+                    Pellet doublePointsPellet = PelletFactory.getPellet("doublePoints");
+                    doublePointsPellet.render(g, j, i);
+                } else if (grid[i][j] == 'T') {
+                    Pellet teleporterPellet = PelletFactory.getPellet("teleporter");
+                    teleporterPellet.render(g, j, i);
                 }
             }
         }
