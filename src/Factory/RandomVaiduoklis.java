@@ -6,9 +6,10 @@ import Strategy.MovementStrategy;
 import game.Maze;
 import java.awt.Graphics;
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.Random;
 
-public class RandomVaiduoklis implements Vaiduoklis {
+public class RandomVaiduoklis implements Vaiduoklis, Serializable {
     private int x, y;
     private Random random;
     private int dx, dy;

@@ -4,7 +4,9 @@ import AbstractFactory.IPacMan;
 import game.Maze;
 import game.ScoreCounterSingleton;
 
-public class DoublePointsState implements PacManState{
+import java.io.Serializable;
+
+public class DoublePointsState implements PacManState, Serializable {
     @Override
     public void move(IPacMan pacman, Maze maze) {
         pacman.move(maze); // Normal movement

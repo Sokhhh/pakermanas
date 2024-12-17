@@ -5,7 +5,9 @@ import AbstractFactory.IPacMan;
 import Factory.Vaiduoklis;
 import game.Maze;
 
-public class AggressiveMovement implements MovementStrategy {
+import java.io.Serializable;
+
+public class AggressiveMovement implements MovementStrategy, Serializable {
 
     @Override
     public void move(Vaiduoklis ghost, Maze maze, IPacMan pacman) {

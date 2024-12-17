@@ -1,8 +1,9 @@
 package game;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class Maze {
+public class Maze implements Serializable {
     private char[][] grid;
 //    public Maze() {
 //        grid = new char[30][30];
@@ -37,6 +38,7 @@ public class Maze {
                 {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
         };
     }
+
     public Maze(char[][] grid) {
         this.grid = grid;
     }

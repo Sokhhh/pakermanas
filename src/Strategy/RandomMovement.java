@@ -4,9 +4,10 @@ import AbstractFactory.IPacMan;
 import Factory.Vaiduoklis;
 import game.Maze;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class RandomMovement implements MovementStrategy{
+public class RandomMovement implements MovementStrategy, Serializable {
     private Random random = new Random();
 
     @Override
