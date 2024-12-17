@@ -40,6 +40,7 @@ public class ScoreCounterSingleton {
         this.score += points;
     }
 
+    public void setScore(int points) {this.score = points; }
     // Method to reset the score
     public void resetScore() {
         this.score = 0;

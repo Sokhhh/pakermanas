@@ -1,4 +1,5 @@
 package TemplateMethod;
+import game.Game;
 import ui.GameOverScreen;
 
 public final class SinglePlayerGameOverHandler extends GameOverHandler {
@@ -16,9 +17,9 @@ public final class SinglePlayerGameOverHandler extends GameOverHandler {
     }
 
     @Override
-    protected void displayGameOverScreen(String message) {
+    protected void displayGameOverScreen(String message, Game game) {
         System.out.println("Displaying SinglePlayer Game Over screen...");
-        GameOverScreen.display(message);
+        GameOverScreen.display(message, game);
     }
 
     @Override

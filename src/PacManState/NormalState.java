@@ -3,7 +3,9 @@ package PacManState;
 import AbstractFactory.IPacMan;
 import game.Maze;
 
-public class NormalState implements PacManState {
+import java.io.Serializable;
+
+public class NormalState implements PacManState, Serializable {
     @Override
     public void move(IPacMan pacman, Maze maze) {
         pacman.move(maze); // Use default movement
