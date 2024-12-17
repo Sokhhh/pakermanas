@@ -2,6 +2,7 @@ package Decorator;
 
 import AbstractFactory.IPacMan;
 import PacManState.PacManState;
+import Visitor.Visitor;
 import game.Maze;
 import java.awt.*;
 import java.util.Random;
@@ -57,5 +58,10 @@ public class TeleporterDecorator extends PacManDecorator {
     @Override
     public void eatPellet(Maze maze) {
         super.eatPellet(maze);
+    }
+
+    // Method for accepting the visitor
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Let the visitor operate on this DoublePointDecorator
     }
 }

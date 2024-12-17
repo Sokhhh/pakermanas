@@ -2,6 +2,7 @@ package Decorator;
 
 import AbstractFactory.IPacMan;
 import PacManState.PacManState;
+import Visitor.Visitor;
 import game.Maze;
 
 import java.awt.*;
@@ -87,5 +88,10 @@ public class InvincibilityDecorator extends PacManDecorator {
     @Override
     public void eatPellet(Maze maze){
         decoratedPacMan.eatPellet(maze);
+    }
+
+    // Method for accepting the visitor
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Let the visitor operate on this DoublePointDecorator
     }
 }

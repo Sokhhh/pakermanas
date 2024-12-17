@@ -1,16 +1,16 @@
-// AggressiveVaiduoklis.java
 package Factory;
 
 import AbstractFactory.IPacMan;
 import Strategy.MovementStrategy;
 import game.Maze;
+import Visitor.Visitor;
 import java.awt.Graphics;
 import java.awt.Color;
 
 public class AggressiveVaiduoklis implements Vaiduoklis {
     private int x, y;
     private int dx, dy;
-    private MovementStrategy movementStrategy;;
+    private MovementStrategy movementStrategy;
 
     public AggressiveVaiduoklis(int startX, int startY, MovementStrategy strategy) {
         this.x = startX;
@@ -20,8 +20,8 @@ public class AggressiveVaiduoklis implements Vaiduoklis {
 
     @Override
     public void move(Maze maze, IPacMan pacman) {
-        if (movementStrategy != null){
-            movementStrategy.move(this,maze,pacman);
+        if (movementStrategy != null) {
+            movementStrategy.move(this, maze, pacman);
         }
     }
 
@@ -30,6 +30,7 @@ public class AggressiveVaiduoklis implements Vaiduoklis {
         g.setColor(Color.RED);
         g.fillOval(x * 20, y * 20, 20, 20); // Draw ghost as a red circle
     }
+
     @Override
     public boolean collidesWith(IPacMan pacman) {
         return this.x == pacman.getX() && this.y == pacman.getY();
@@ -55,7 +56,12 @@ public class AggressiveVaiduoklis implements Vaiduoklis {
         this.dy = dy;
     }
 
-    public void setMovementStrategy(MovementStrategy strategy){
+    public void setMovementStrategy(MovementStrategy strategy) {
         this.movementStrategy = strategy;
+    }
+
+    // Accept method for the Visitor pattern
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Allow the visitor (like CollisionVisitor) to visit this Ghost
     }
 }

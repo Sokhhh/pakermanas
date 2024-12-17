@@ -4,6 +4,7 @@ import AbstractFactory.IPacMan;
 import PacManState.PacManState;
 import game.Maze;
 import game.ScoreCounterSingleton;
+import Visitor.Visitor;
 
 import java.awt.*;
 
@@ -96,5 +97,10 @@ public class DoublePointDecorator extends PacManDecorator {
 
     public boolean isDoublePointsActive() {
         return doublePointsActive;
+    }
+
+    // Method for accepting the visitor
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Let the visitor operate on this DoublePointDecorator
     }
 }

@@ -5,6 +5,7 @@ import PacManState.NormalState;
 import Prototype.CloneableEntity;
 import game.Maze;
 import game.ScoreCounterSingleton;
+import Visitor.Visitor;
 
 import java.awt.*;
 
@@ -50,7 +51,7 @@ public class SPPacMan implements IPacMan, CloneableEntity {
     }
 
     @Override
-    public void eatPellet(Maze maze){
+    public void eatPellet(Maze maze) {
         // Check if Pac-Man is on a pellet and eat it
         if (maze.eatPellet(x, y)) {
             state.eatPellet(this, maze);
@@ -105,11 +106,21 @@ public class SPPacMan implements IPacMan, CloneableEntity {
         this.y = y;
     }
 
-    public int getDx(){return dx;}
-    public int getDy(){return dy;}
+    public int getDx() {
+        return dx;
+    }
+
+    public int getDy() {
+        return dy;
+    }
 
     @Override
     public SPPacMan clone() {
         return new SPPacMan(this.x, this.y);
+    }
+
+    // Accept method for the Visitor pattern
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Allow the CollisionVisitor (or other visitors) to visit this PacMan
     }
 }

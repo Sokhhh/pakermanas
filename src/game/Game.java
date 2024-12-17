@@ -9,6 +9,7 @@ import Decorator.InvincibilityDecorator;
 import Decorator.PacManDecorator;
 import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
+import Flyweight.Pellet;
 import Interpreter.Expression;
 import Interpreter.MovementCommand;
 import PacManState.DoublePointsState;
@@ -17,6 +18,7 @@ import Strategy.FrightenedMovement;
 import TemplateMethod.GameOverHandler;
 import TemplateMethod.MultiplayerGameOverHandler;
 import TemplateMethod.SinglePlayerGameOverHandler;
+import Visitor.CollisionVisitor;
 import ui.GameOverScreen;
 
 //Gusto
@@ -346,7 +348,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // Check if Pac-Man collects a power pellet
         if (maze.eatInvincibilityPellet(pacman.getX(), pacman.getY())) {
             if (pacman instanceof InvincibilityDecorator) {
-                System.out.println("TEST0");
                 ((InvincibilityDecorator) pacman).activateInvincibility();  // Activate invincibility
             }
         }
@@ -354,7 +355,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (maze.eatDoublePointsPellet(pacman.getX(), pacman.getY())) {
             IPacMan doublePointPacMan = getDoublePointDecorator(pacman);
             if (doublePointPacMan != null && doublePointPacMan instanceof DoublePointDecorator) {
-                System.out.println("TEST1");
                 ((DoublePointDecorator) doublePointPacMan).activateDoublePoints();  // Activate double points
             }
         }
@@ -362,13 +362,19 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (maze.eatTeleporterPellet(pacman.getX(), pacman.getY())) {
             IPacMan teleporterPacMan = getTeleporterDecorator(pacman);
             if (teleporterPacMan != null && teleporterPacMan instanceof TeleporterDecorator) {
-                System.out.println("TEST2");
                 ((TeleporterDecorator) teleporterPacMan).teleport(maze);  // Activate double points
             }
         }
 
+        // Use CollisionVisitor to check collisions between PacMan and ghosts/pellets
+        CollisionVisitor collisionVisitor = new CollisionVisitor(pacman);
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             vaiduoklis.move(maze, pacman);
+            vaiduoklis.accept(collisionVisitor);  // Check if PacMan collides with this ghost
+        }
+
+        for (Pellet pellet : maze.getPellets()) {
+            pellet.accept(collisionVisitor);  // Check if PacMan eats this pellet
         }
 
         if (!((InvincibilityDecorator) pacman).isInvincibilityActive()) {
@@ -384,6 +390,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
         repaint();
     }
+
 
     @Override
     public void paintComponent(Graphics g) {
@@ -427,21 +434,21 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     private void checkCollision() {
-        //System.out.println(pacman.getPacmanState());
+        // Collision checks with ghosts
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             if (vaiduoklis.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
-                timer.stop(); // Stop the game loop
+                timer.stop();  // Stop the game loop
                 notifyCollisionObservers();
 
-                //Get the score
+                // Get the score
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
                 int score = scoreCounter.getScore();
 
                 GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
                 handler.handleGameOver(false, score);
 
-                //GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
+                // GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
                 break;
             }
         }

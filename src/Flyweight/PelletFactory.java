@@ -7,25 +7,33 @@ import java.util.Map;
 public class PelletFactory {
     private static final Map<String, Pellet> pelletCache = new HashMap<>();
 
-    public static Pellet getPellet(String type) {
-        if (!pelletCache.containsKey(type)) {
+    // Modify the getPellet method to accept x and y coordinates
+    public static Pellet getPellet(String type, int x, int y) {
+        Pellet pellet = pelletCache.get(type);
+
+        // If the pellet of the requested type doesn't exist in the cache, create it
+        if (pellet == null) {
             switch (type) {
                 case "regular":
-                    pelletCache.put(type, new Pellet(Color.WHITE, 6));
+                    pellet = new Pellet(Color.WHITE, 6, x, y);  // Create a regular pellet at (x, y)
                     break;
                 case "invincibility":
-                    pelletCache.put(type, new Pellet(Color.CYAN, 12));
+                    pellet = new Pellet(Color.CYAN, 12, x, y);  // Create an invincibility pellet at (x, y)
                     break;
                 case "doublePoints":
-                    pelletCache.put(type, new Pellet(Color.YELLOW, 12));
+                    pellet = new Pellet(Color.YELLOW, 12, x, y);  // Create a doublePoints pellet at (x, y)
                     break;
                 case "teleporter":
-                    pelletCache.put(type, new Pellet(Color.WHITE, 12));
+                    pellet = new Pellet(Color.WHITE, 12, x, y);  // Create a teleporter pellet at (x, y)
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown pellet type: " + type);
             }
+            // After creating the pellet, add it to the cache
+            pelletCache.put(type, pellet);
         }
-        return pelletCache.get(type);
+
+        // Return the cached pellet with the updated position
+        return pellet;
     }
 }
