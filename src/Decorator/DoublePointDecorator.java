@@ -1,6 +1,8 @@
 package Decorator;
 
 import AbstractFactory.IPacMan;
+import Mediator.Mediator;
+import Mediator.MessageMediator;
 import PacManState.PacManState;
 import game.Maze;
 import game.ScoreCounterSingleton;
@@ -14,7 +16,7 @@ public class DoublePointDecorator extends PacManDecorator {
     private boolean doublePointsActive;
     private long doublePointsEndTime;
     private static final long DEFAULT_DOUBLE_POINTS_DURATION = 10000; // Default duration: 10 seconds
-
+    Mediator soundMediator;
     public DoublePointDecorator(IPacMan decoratedPacMan) {
         super(decoratedPacMan);
         this.doublePointsActive = false;
@@ -65,7 +67,7 @@ public class DoublePointDecorator extends PacManDecorator {
             // If double points are active, double the points
             if (maze.eatPellet(decoratedPacMan.getX(), decoratedPacMan.getY())) {
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance(); // Get the ScoreCounter instance
-                scoreCounter.addScore(2);  // Increment score by 1 when a pellet is eaten
+                scoreCounter.addScore(2);  // Increment score by 2 when a pellet is eaten
             }
         } else {
             decoratedPacMan.eatPellet(maze);  // Default behavior
@@ -86,13 +88,16 @@ public class DoublePointDecorator extends PacManDecorator {
     }
 
     // Activate double points mode for a set duration (default 10 seconds)
-    public void activateDoublePoints() {
-        activateDoublePoints(DEFAULT_DOUBLE_POINTS_DURATION);
+    public void activateDoublePoints(Mediator m) {
+        soundMediator = new MessageMediator();
+        soundMediator.notify("Sound Double", decoratedPacMan);
+        activateDoublePoints(DEFAULT_DOUBLE_POINTS_DURATION, m);
     }
 
-    public void activateDoublePoints(long duration) {
+    public void activateDoublePoints(long duration, Mediator m) {
         this.doublePointsActive = true;
         this.doublePointsEndTime = System.currentTimeMillis() + duration;
+        m.notify("Double message", decoratedPacMan);
     }
 
     public boolean isDoublePointsActive() {

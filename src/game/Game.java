@@ -12,18 +12,21 @@ import Factory.Vaiduoklis;
 import Flyweight.Pellet;
 import Interpreter.Expression;
 import Interpreter.MovementCommand;
+import Mediator.MessageMediator;
+import Mediator.Mediator;
 import PacManState.DoublePointsState;
 import PacManState.TeleportingState;
-import Strategy.FrightenedMovement;
 import TemplateMethod.GameOverHandler;
 import TemplateMethod.MultiplayerGameOverHandler;
 import TemplateMethod.SinglePlayerGameOverHandler;
+
+
 import Visitor.CollisionVisitor;
 import Visitor.PowerUpVisitor;
 import Visitor.ScoreVisitor;
 import ui.GameOverScreen;
-
 //Gusto
+import ui.GameMessage;
 import SoundAdapter.WAWAdapter;
 import SoundAdapter.SoundPlayer;
 import Observer.SoundOnCollision;
@@ -40,7 +43,6 @@ import Proxy.NetworkProxy;
 import Proxy.ServerProxy;
 import Proxy.ClientProxy;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -61,7 +63,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     private final Expression movementCommand; // Expression interface
     private ExecutorService commandListenerThread; // For listening to console commands
-
     private boolean isMultiplayer;
     private boolean isServer;
     private String serverIP;
@@ -69,6 +70,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
+
+    private GameMessage gameMessage;
+    private Mediator mediator;
     // Score display
 
     private NetworkProxy networkProxy;
@@ -85,6 +89,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.token = token;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
+
+        gameMessage = new GameMessage();
+        this.mediator = new MessageMediator(this.pacman, gameMessage);
 
         this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
 
@@ -137,7 +144,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
         this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
-
+        gameMessage = new GameMessage();
+        this.mediator = new MessageMediator(this.pacman, gameMessage);
         this.maze = new Maze();  // Generate the maze
 
         initializeCommands();
@@ -191,6 +199,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.maze = director.constructMaze();  // Build and retrieve the maze
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
+
+        gameMessage = new GameMessage();
+        this.mediator = new MessageMediator(this.pacman, gameMessage);
 
         initializeCommands();
         initializeGhosts();
@@ -395,7 +406,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             pellet.accept(powerUpVisitor);
         }
 
-
         checkWinCondition();
 
         // Use CollisionVisitor to check collisions between PacMan and ghosts/pellets
@@ -444,6 +454,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         int x = getWidth() - metrics.stringWidth(scoreText) - 10; // 10 pixels from the right
         int y = metrics.getHeight(); // Height of the font
         g.drawString(scoreText, x, y);  // Draw score
+        gameMessage.render(g, x - 5, y + 15);
     }
 
     @Override
