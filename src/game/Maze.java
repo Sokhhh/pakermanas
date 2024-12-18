@@ -4,7 +4,9 @@ import Flyweight.Pellet;
 import Flyweight.PelletFactory;
 
 import java.awt.*;
+import java.util.List;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Maze implements Serializable {
     private char[][] grid;

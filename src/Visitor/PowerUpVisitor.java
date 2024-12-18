@@ -7,6 +7,7 @@ import Decorator.PacManDecorator;
 import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
 import Flyweight.Pellet;
+import Mediator.Mediator;
 import PacManState.DoublePointsState;
 import PacManState.TeleportingState;
 import game.Maze;
@@ -14,10 +15,11 @@ import game.Maze;
 public class PowerUpVisitor implements Visitor {
     private IPacMan pacMan;  // PacMan instance for power-up checks
     private Maze maze;  // Maze instance to call pacMan.eatPellet()
-
-    public PowerUpVisitor(IPacMan pacMan, Maze maze) {
+    private Mediator mediator;
+    public PowerUpVisitor(IPacMan pacMan, Maze maze, Mediator m) {
         this.pacMan = pacMan;
-        this.maze = maze;  // Store the maze instance
+        this.maze = maze; // Store the maze instance
+        this.mediator = m;
     }
 
     @Override
@@ -42,6 +44,7 @@ public class PowerUpVisitor implements Visitor {
                     // Assuming PacMan can activate invincibility if it is a decorator
                     if (pacMan instanceof InvincibilityDecorator) {
                         ((InvincibilityDecorator) pacMan).activateInvincibility();  // Activate invincibility
+                        mediator.notify("Invincibility", pacMan);
                     }
                     break;
                 case "doublePoints":
@@ -50,7 +53,9 @@ public class PowerUpVisitor implements Visitor {
                     // Handle double points (assuming DoublePointDecorator is applied)
                     IPacMan doublePointPacMan = getDoublePointDecorator(pacMan);
                     if (doublePointPacMan != null && doublePointPacMan instanceof DoublePointDecorator) {
-                        ((DoublePointDecorator) doublePointPacMan).activateDoublePoints();  // Activate double points
+                        mediator.notify("Double", doublePointPacMan);
+                        //((DoublePointDecorator) doublePointPacMan).activateDoublePoints(mediator);
+                        // Activate double points
                     }
                     break;
                 case "teleporter":

@@ -398,7 +398,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         pacman.move(maze);  // Move Pac-Man based on the current direction
 
         // Use PowerUpVisitor to check for power-ups
-        PowerUpVisitor powerUpVisitor = new PowerUpVisitor(pacman, maze);
+        PowerUpVisitor powerUpVisitor = new PowerUpVisitor(pacman, maze, mediator);
         ScoreVisitor scoreVisitor = new ScoreVisitor(pacman);
 
         for (Pellet pellet : maze.getPellets()) {
