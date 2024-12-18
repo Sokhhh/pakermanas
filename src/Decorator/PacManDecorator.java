@@ -1,10 +1,12 @@
 package Decorator;
 
 import AbstractFactory.IPacMan;
+import Visitor.Visitor;
 import game.Maze;
 import java.awt.*;
+import java.io.Serializable;
 
-public abstract class PacManDecorator implements IPacMan {
+public abstract class PacManDecorator implements IPacMan, Serializable {
     public IPacMan decoratedPacMan;
 
     public PacManDecorator(IPacMan decoratedPacMan) {
@@ -54,5 +56,10 @@ public abstract class PacManDecorator implements IPacMan {
     @Override
     public void render(Graphics g) {
         decoratedPacMan.render(g);
+    }
+
+    // Method for accepting the visitor
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Let the visitor operate on this DoublePointDecorator
     }
 }

@@ -1,13 +1,13 @@
 package game;
 
-import java.awt.*;
+import Flyweight.Pellet;
+import Flyweight.PelletFactory;
 
-public class Maze {
+import java.awt.*;
+import java.io.Serializable;
+
+public class Maze implements Serializable {
     private char[][] grid;
-//    public Maze() {
-//        grid = new char[30][30];
-//        generateMaze();
-//    }
 
     public Maze() {
         grid = new char[][]{
@@ -37,6 +37,7 @@ public class Maze {
                 {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
         };
     }
+
     public Maze(char[][] grid) {
         this.grid = grid;
     }
@@ -46,91 +47,100 @@ public class Maze {
     }
 
 
+    public List<Pellet> getPellets() {
+        List<Pellet> pellets = new ArrayList<>();
+
+        // Use grid dimensions to ensure you're iterating within bounds
+        for (int i = 0; i < grid.length; i++) {  // Iterate over rows
+            for (int j = 0; j < grid[i].length; j++) {  // Iterate over columns
+                if (grid[i][j] == '.') {
+                    // Regular Pellet
+                    pellets.add(PelletFactory.getPellet("regular", j, i));  // The PelletFactory will handle color, size, and position
+                } else if (grid[i][j] == 'I') {
+                    // Invincibility Pellet
+                    pellets.add(PelletFactory.getPellet("invincibility", j, i));  // The PelletFactory will handle color, size, and position
+                } else if (grid[i][j] == 'D') {
+                    // Double Points Pellet
+                    pellets.add(PelletFactory.getPellet("doublePoints", j, i));  // The PelletFactory will handle color, size, and position
+                } else if (grid[i][j] == 'T') {
+                    // Teleporter Pellet
+                    pellets.add(PelletFactory.getPellet("teleporter", j, i));  // The PelletFactory will handle color, size, and position
+                }
+            }
+        }
+
+        return pellets;
+    }
+
+
     public void render(Graphics g) {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, 800, 800);  // Fill the entire panel with black
 
-        for (int i = 0; i < 23; i++) {
-            for (int j = 0; j < 23; j++) {
+        for (int i = 0; i < grid.length; i++) {  // Loop through rows
+            for (int j = 0; j < grid[i].length; j++) {  // Loop through columns
                 if (grid[i][j] == '#') {
                     g.setColor(Color.BLUE);  // Wall color
                     g.drawRect(j * 20, i * 20, 20, 20);
                 } else if (grid[i][j] == '.') {
-                    g.setColor(Color.WHITE);  // Pellet color
-                    g.fillOval(j * 20 + 7, i * 20 + 7, 6, 6);
-                } else if (grid[i][j] == 'T') {
-                    g.setColor(Color.WHITE);  // Pellet color
-                    int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
-                    g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
-                } else if (grid[i][j] == 'D') {
-                    g.setColor(Color.YELLOW);  // Pellet color
-                    int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
-                    g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
+                    // Create regular Pellet at the position (j, i)
+                    Pellet regularPellet = PelletFactory.getPellet("regular", j, i);  // The PelletFactory handles the creation
+                    regularPellet.render(g, j, i);  // Pass position to render method
                 } else if (grid[i][j] == 'I') {
-                    g.setColor(Color.CYAN);  // Pellet color
-                    int offset = (20 - 12) / 2;  // 12x12 pellet, centered in 20x20 grid
-                    g.fillOval(j * 20 + offset, i * 20 + offset, 12, 12); // Bigger pellet with 12x12 size
+                    // Create invincibility Pellet at the position (j, i)
+                    Pellet invincibilityPellet = PelletFactory.getPellet("invincibility", j, i);  // The PelletFactory handles the creation
+                    invincibilityPellet.render(g, j, i);  // Pass position to render method
+                } else if (grid[i][j] == 'D') {
+                    // Create doublePoints Pellet at the position (j, i)
+                    Pellet doublePointsPellet = PelletFactory.getPellet("doublePoints", j, i);  // The PelletFactory handles the creation
+                    doublePointsPellet.render(g, j, i);  // Pass position to render method
+                } else if (grid[i][j] == 'T') {
+                    // Create teleporter Pellet at the position (j, i)
+                    Pellet teleporterPellet = PelletFactory.getPellet("teleporter", j, i);  // The PelletFactory handles the creation
+                    teleporterPellet.render(g, j, i);  // Pass position to render method
                 }
             }
         }
     }
 
+
+    // Other existing methods like isWall, eatPellet, etc.
     public boolean isWall(int x, int y) {
         return grid[y][x] == '#';
     }
 
     public boolean eatPellet(int x, int y) {
-        if (grid[y][x] == '.') {
-            grid[y][x] = ' ';  // Pac-Man eats the pellet
+        char pelletType = grid[y][x];  // Get the character representing the pellet at the position
 
-            return true;// Indicate that a pellet was eaten
+        // Check if the pellet exists and handle accordingly
+        switch (pelletType) {
+            case '.':
+                // Regular pellet
+                grid[y][x] = ' ';  // Remove the pellet from the grid
+                return true;
+
+            case 'I':
+                // Invincibility Pellet
+                grid[y][x] = ' ';  // Remove the invincibility pellet
+                // Implement logic for invincibility (e.g., activate power-up)
+                return true;
+
+            case 'D':
+                // Double Points Pellet
+                grid[y][x] = ' ';  // Remove the double points pellet
+                // Implement logic for double points (e.g., activate power-up)
+                return true;
+
+            case 'T':
+                // Teleporter Pellet
+                grid[y][x] = ' ';  // Remove the teleporter pellet
+                // Implement logic for teleportation (e.g., teleport Pac-Man)
+                return true;
+
+            default:
+                // If it's not a valid pellet, do nothing
+                return false;
         }
-
-        return false;// No pellet eaten
-    }
-
-    public boolean eatInvincibilityPellet(int x, int y) {
-        // Check if there's a power pellet at the given position
-        if (grid[y][x] == 'I') {
-            grid[y][x] = ' ';  // Pac-Man eats the pellet
-
-            return true;// Indicate that a pellet was eaten
-        }
-
-        return false;// No pellet eaten
-    }
-
-    public boolean eatDoublePointsPellet(int x, int y) {
-        // Check if there's a power pellet at the given position
-        if (grid[y][x] == 'D') {
-            grid[y][x] = ' ';  // Pac-Man eats the pellet
-
-            return true;// Indicate that a pellet was eaten
-        }
-
-        return false;// No pellet eaten
-    }
-
-    public boolean eatTeleporterPellet(int x, int y) {
-        // Check if there's a power pellet at the given position
-        if (grid[y][x] == 'T') {
-            grid[y][x] = ' ';  // Pac-Man eats the pellet
-
-            return true;// Indicate that a pellet was eaten
-        }
-
-        return false;// No pellet eaten
-    }
-
-    public boolean eatPowerPellet(int x, int y) {
-        // Check if there's a power pellet at the given position
-        if (grid[y][x] == '*') {
-            grid[y][x] = ' ';  // Pac-Man eats the pellet
-
-            return true;// Indicate that a pellet was eaten
-        }
-
-        return false;// No pellet eaten
     }
 
     public boolean allPelletsCollected() {
@@ -161,5 +171,4 @@ public class Maze {
         // Check if the position is a wall
         return grid[newY][newX] != '#';
     }
-
 }

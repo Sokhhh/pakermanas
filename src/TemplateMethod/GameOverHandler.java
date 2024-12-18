@@ -1,10 +1,12 @@
 package TemplateMethod;
 
+import game.Game;
+
 public abstract class GameOverHandler {
-    public final void handleGameOver(boolean isWin, int score) {
+    public final void handleGameOver(boolean isWin, int score, Game game) {
         stopGameLoop();
         String message = generateGameOverMessage(isWin, score);
-        displayGameOverScreen(message);
+        displayGameOverScreen(message, game);
         saveScore(score);
         offerReplayOption();
     }
@@ -14,7 +16,7 @@ public abstract class GameOverHandler {
 
     protected abstract String generateGameOverMessage(boolean isWin, int score);
 
-    protected abstract void displayGameOverScreen(String message);
+    protected abstract void displayGameOverScreen(String message, Game game);
 
     protected abstract void saveScore(int score);
 

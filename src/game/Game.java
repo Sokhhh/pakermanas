@@ -9,6 +9,7 @@ import Decorator.InvincibilityDecorator;
 import Decorator.PacManDecorator;
 import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
+import Flyweight.Pellet;
 import Interpreter.Expression;
 import Interpreter.MovementCommand;
 import Mediator.MessageMediator;
@@ -18,9 +19,14 @@ import PacManState.TeleportingState;
 import TemplateMethod.GameOverHandler;
 import TemplateMethod.MultiplayerGameOverHandler;
 import TemplateMethod.SinglePlayerGameOverHandler;
-import ui.GameMessage;
 
+
+import Visitor.CollisionVisitor;
+import Visitor.PowerUpVisitor;
+import Visitor.ScoreVisitor;
+import ui.GameOverScreen;
 //Gusto
+import ui.GameMessage;
 import SoundAdapter.WAWAdapter;
 import SoundAdapter.SoundPlayer;
 import Observer.SoundOnCollision;
@@ -31,6 +37,11 @@ import Bridge.DeathSound;
 //Deivio
 import Command.*;
 import AbstractFactory.*;
+import Memento.GameCaretaker;
+import Memento.GameMemento;
+import Proxy.NetworkProxy;
+import Proxy.ServerProxy;
+import Proxy.ClientProxy;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -64,13 +75,18 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private Mediator mediator;
     // Score display
 
+    private NetworkProxy networkProxy;
+    private final GameCaretaker caretaker = new GameCaretaker();
+    private String token;
+
     private AbstractEntityFactory entityFactory;
     private List<CollisionObserver> collisionObservers = new ArrayList<>();
     private List<Vaiduoklis> vaiduoklis = new ArrayList<>();
 
-    public Game(boolean isMultiplayer, boolean isServer, String serverIP) {
+    public Game(boolean isMultiplayer, boolean isServer, String serverIP, String token) {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
+        this.token = token;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
 
@@ -100,26 +116,31 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
-            if (isServer) {
-                startServer();
-            } else {
-                startClient();
-            }
+            networkProxy = isServer ? new ServerProxy(12345,token) : new ClientProxy(serverIP, 12345, token);
         }
+//        if (isMultiplayer) {
+//            if (isServer) {
+//                startServer();
+//            } else {
+//                startClient();
+//            }
+//        }
 
         setFocusable(true);
         addKeyListener(this);
-
         timer = new Timer(100, this);
         timer.start();
 
         // Start the console command listener
         startCommandListener();
+        initializeGame();
+        saveGameState();
     }
 
-    public Game(boolean isMultiplayer, boolean isServer) {
+    public Game(boolean isMultiplayer, boolean isServer, String token) {
         this.isMultiplayer = isMultiplayer;
         this.isServer = isServer;
+        this.token = token;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
         this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
@@ -137,20 +158,27 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addCollisionObserver(new SoundOnCollision(deathSound));
 
         if (isMultiplayer) {
-            if (isServer) {
-                startServer();
-            } else {
-                startClient();
-            }
+            networkProxy = isServer ? new ServerProxy(12345,token) : new ClientProxy(serverIP, 12345, token);
         }
+
+//        if (isMultiplayer) {
+//            if (isServer) {
+//                startServer();
+//            } else {
+//                startClient();
+//            }
+//        }
 
         setFocusable(true);
         addKeyListener(this);
+
 
         timer = new Timer(100, this);
         timer.start();
         // Start the console command listener
         startCommandListener();
+        initializeGame();
+        saveGameState();
     }
     // Constructor for single-player with selected maze type
     public Game(String mazeType) {
@@ -188,34 +216,18 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         startCommandListener();
     }
 
+    private void initializeGame() {
+        // Game setup logic (e.g., loading Pac-Man, ghosts, maze)
+        if (isMultiplayer) {
+            listenToNetwork(); // Start listening for incoming messages
+        }
+    }
+
     private void initializePacMan(){
 //        this.pacman = entityFactory.createPacMan();
 //        this.pacman = new InvincibilityDecorator(new DoublePointDecorator(pacman));
         this.pacman = new InvincibilityDecorator(new DoublePointDecorator(new TeleporterDecorator(entityFactory.createPacMan())));
     }
-
-    private IPacMan getTeleporterDecorator(IPacMan pacman) {
-        while (pacman instanceof PacManDecorator) {
-            if (pacman instanceof TeleporterDecorator) {
-                return pacman;  // Found the TeleporterDecorator
-            }
-            pacman.setPacmanState(new TeleportingState());
-            pacman = ((PacManDecorator) pacman).decoratedPacMan;  // Unwrap the decorator
-        }
-        return null;  // Return null if no TeleporterDecorator is found
-    }
-
-    private IPacMan getDoublePointDecorator(IPacMan pacman) {
-        while (pacman instanceof PacManDecorator) {
-            if (pacman instanceof DoublePointDecorator) {
-                return pacman;  // Found the DoublePointDecorator
-            }
-            pacman.setPacmanState(new DoublePointsState());
-            pacman = ((PacManDecorator) pacman).decoratedPacMan;  // Unwrap the decorator
-        }
-        return null;  // Return null if no DoublePointDecorator is found
-    }
-
 
 
     private void initializeGhosts() {
@@ -331,52 +343,80 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     // Send Pac-Man's position (from host to client)
     private void sendPacmanPosition() {
-        if (out != null && isServer) {
-            out.println(pacman.getX() + "," + pacman.getY());  // Send Pac-Man position to client
+//        if (out != null && isServer) {
+//            out.println(pacman.getX() + "," + pacman.getY());  // Send Pac-Man position to client
+//        }
+        if (networkProxy != null && isServer) {
+            networkProxy.send(pacman.getX() + "," + pacman.getY());
         }
     }
 
     // Send Ghost's position (from client to host)
     private void sendGhostPosition() {
-        if (out != null && !isServer) {
-            //Ghost clientGhost = ghosts.get(0);  // In multiplayer, assume first ghost is controlled by the client
+//        if (out != null && !isServer) {
+//            //Ghost clientGhost = ghosts.get(0);  // In multiplayer, assume first ghost is controlled by the client
+//            Vaiduoklis clientGhost = vaiduoklis.get(0);
+//            out.println(clientGhost.getX() + "," + clientGhost.getY());
+//        }
+        if (networkProxy != null && !isServer) {
             Vaiduoklis clientGhost = vaiduoklis.get(0);
-            out.println(clientGhost.getX() + "," + clientGhost.getY());
+            networkProxy.send(clientGhost.getX() + "," + clientGhost.getY());
         }
+    }
+
+    private void listenToNetwork() {
+        if (networkProxy == null) return;
+
+        new Thread(() -> {
+            while (true) {
+                String message = networkProxy.receive();
+                if (message == null) {
+                    networkProxy.close();
+                    System.exit(0);
+                    break;
+                }
+
+                String[] position = message.split(",");
+                int x = Integer.parseInt(position[0]);
+                int y = Integer.parseInt(position[1]);
+
+                if (isServer) {
+                    // Update ghost position
+                    if (!vaiduoklis.isEmpty()) vaiduoklis.get(0).setPosition(x, y);
+                } else {
+                    // Update Pac-Man position
+                    pacman.setPosition(x, y);
+                }
+
+                repaint();
+            }
+        }).start();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         pacman.move(maze);  // Move Pac-Man based on the current direction
-        pacman.eatPellet(maze);
+
+        // Use PowerUpVisitor to check for power-ups
+        PowerUpVisitor powerUpVisitor = new PowerUpVisitor(pacman, maze);
+        ScoreVisitor scoreVisitor = new ScoreVisitor(pacman);
+
+        for (Pellet pellet : maze.getPellets()) {
+            pellet.accept(scoreVisitor);
+            pellet.accept(powerUpVisitor);
+        }
 
         checkWinCondition();
 
-        // Check if Pac-Man collects a power pellet
-        if (maze.eatInvincibilityPellet(pacman.getX(), pacman.getY())) {
-            if (pacman instanceof InvincibilityDecorator) {
-                ((InvincibilityDecorator) pacman).activateInvincibility();  // Activate invincibility
-                mediator.notify("Invincibility", pacman);
-            }
-        }
-
-        if (maze.eatDoublePointsPellet(pacman.getX(), pacman.getY())) {
-            IPacMan doublePointPacMan = getDoublePointDecorator(pacman);
-            if (doublePointPacMan != null && doublePointPacMan instanceof DoublePointDecorator) {
-                mediator.notify("Double", doublePointPacMan);
-            }
-        }
-
-        if (maze.eatTeleporterPellet(pacman.getX(), pacman.getY())) {
-            IPacMan teleporterPacMan = getTeleporterDecorator(pacman);
-            if (teleporterPacMan != null && teleporterPacMan instanceof TeleporterDecorator) {
-                System.out.println("TEST2");
-                ((TeleporterDecorator) teleporterPacMan).teleport(maze);  // Activate double points
-            }
-        }
-
+        // Use CollisionVisitor to check collisions between PacMan and ghosts/pellets
+        CollisionVisitor collisionVisitor = new CollisionVisitor(pacman);
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             vaiduoklis.move(maze, pacman);
+            vaiduoklis.accept(collisionVisitor);  // Check if PacMan collides with this ghost
+        }
+
+        for (Pellet pellet : maze.getPellets()) {
+            pellet.accept(collisionVisitor);  // Check if PacMan eats this pellet
         }
 
         if (!((InvincibilityDecorator) pacman).isInvincibilityActive()) {
@@ -392,6 +432,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
         repaint();
     }
+
+
 
     @Override
     public void paintComponent(Graphics g) {
@@ -435,26 +477,33 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+
     private void checkCollision() {
-        //System.out.println(pacman.getPacmanState());
+        // Collision checks with ghosts
         for (Vaiduoklis vaiduoklis : vaiduoklis) {
             if (vaiduoklis.collidesWith(pacman)) {
                 System.out.println("Game Over! Pac-Man has been caught by the ghost.");
-                timer.stop(); // Stop the game loop
+                timer.stop();  // Stop the game loop
                 notifyCollisionObservers();
 
-                //Get the score
+                // Get the score
                 ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
                 int score = scoreCounter.getScore();
 
                 GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
-                handler.handleGameOver(false, score);
+                handler.handleGameOver(false, score, this);
 
                 //GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
+                if(isMultiplayer)
+                {
+                    networkProxy.close();
+                }
+
                 break;
             }
         }
     }
+
 
     private void checkWinCondition() {
         if (maze.allPelletsCollected()) {
@@ -463,7 +512,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             int score = scoreCounter.getScore();
 
             GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
-            handler.handleGameOver(true, score);
+            handler.handleGameOver(true, score, this);
+            if(isMultiplayer)
+            {
+                networkProxy.close();
+            }
             //GameOverScreen.display("You Win! All pellets collected. Your score: " + scoreCounter.getScore());
         }
     }
@@ -480,4 +533,27 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public void keyReleased(KeyEvent e) {}
     @Override
     public void keyTyped(KeyEvent e) {}
+
+
+    public void saveGameState() {
+        int currentScore = ScoreCounterSingleton.getInstance().getScore();
+        caretaker.saveState(new GameMemento(maze, pacman, vaiduoklis, currentScore));
+    }
+
+    public void restoreGameState() {
+        GameMemento memento = caretaker.getSavedState();
+        if (memento != null) {
+            this.pacman = memento.getPacman();
+            this.vaiduoklis = memento.getGhosts();
+            ScoreCounterSingleton.getInstance().setScore(memento.getScore());
+            this.maze = memento.getMaze();
+
+            initializeCommands();
+            addKeyListener(this);
+            timer.start(); // Resume the game loop
+            repaint();     // Refresh the screen
+        } else {
+            System.out.println("No saved state to restore!");
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package AbstractFactory;
 
+import Visitor.Visitor;
 import game.Maze;
 import PacManState.PacManState;
 
@@ -19,4 +20,6 @@ public interface IPacMan {
     //STATE
     void setPacmanState(PacManState state);
     PacManState getPacmanState();
+
+    void accept(Visitor visitor);
 }

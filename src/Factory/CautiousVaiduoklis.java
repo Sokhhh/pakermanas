@@ -1,13 +1,14 @@
-// CautiousVaiduoklis.java
 package Factory;
 
 import AbstractFactory.IPacMan;
 import Strategy.MovementStrategy;
 import game.Maze;
+import Visitor.Visitor;
 import java.awt.Graphics;
 import java.awt.Color;
+import java.io.Serializable;
 
-public class CautiousVaiduoklis implements Vaiduoklis {
+public class CautiousVaiduoklis implements Vaiduoklis, Serializable {
     private int x, y;
     private int dx, dy;
     private MovementStrategy movementStrategy;
@@ -20,8 +21,8 @@ public class CautiousVaiduoklis implements Vaiduoklis {
 
     @Override
     public void move(Maze maze, IPacMan pacman) {
-        if (movementStrategy != null){
-            movementStrategy.move(this,maze,pacman);
+        if (movementStrategy != null) {
+            movementStrategy.move(this, maze, pacman);
         }
     }
 
@@ -56,7 +57,12 @@ public class CautiousVaiduoklis implements Vaiduoklis {
         this.dy = dy;
     }
 
-    public void setMovementStrategy(MovementStrategy strategy){
+    public void setMovementStrategy(MovementStrategy strategy) {
         this.movementStrategy = strategy;
+    }
+
+    // Accept method for the Visitor pattern
+    public void accept(Visitor visitor) {
+        visitor.visit(this);  // Allow the visitor (like CollisionVisitor) to visit this Ghost
     }
 }
