@@ -11,13 +11,14 @@ import Decorator.TeleporterDecorator;
 import Factory.Vaiduoklis;
 import Interpreter.Expression;
 import Interpreter.MovementCommand;
+import Mediator.MessageMediator;
+import Mediator.Mediator;
 import PacManState.DoublePointsState;
 import PacManState.TeleportingState;
-import Strategy.FrightenedMovement;
 import TemplateMethod.GameOverHandler;
 import TemplateMethod.MultiplayerGameOverHandler;
 import TemplateMethod.SinglePlayerGameOverHandler;
-import ui.GameOverScreen;
+import ui.GameMessage;
 
 //Gusto
 import SoundAdapter.WAWAdapter;
@@ -31,7 +32,6 @@ import Bridge.DeathSound;
 import Command.*;
 import AbstractFactory.*;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -52,7 +52,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     private final Expression movementCommand; // Expression interface
     private ExecutorService commandListenerThread; // For listening to console commands
-
     private boolean isMultiplayer;
     private boolean isServer;
     private String serverIP;
@@ -60,6 +59,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
+
+    private GameMessage gameMessage;
+    private Mediator mediator;
     // Score display
 
     private AbstractEntityFactory entityFactory;
@@ -71,6 +73,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.isServer = isServer;
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
+
+        gameMessage = new GameMessage();
+        this.mediator = new MessageMediator(this.pacman, gameMessage);
 
         this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
 
@@ -118,7 +123,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
         this.movementCommand = new MovementCommand(); // MovementCommand as the concrete expression
-
+        gameMessage = new GameMessage();
+        this.mediator = new MessageMediator(this.pacman, gameMessage);
         this.maze = new Maze();  // Generate the maze
 
         initializeCommands();
@@ -165,6 +171,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.maze = director.constructMaze();  // Build and retrieve the maze
         this.entityFactory = isMultiplayer ? new MPEntityFactory() : new SPEntityFactory();
         initializePacMan();
+
+        gameMessage = new GameMessage();
+        this.mediator = new MessageMediator(this.pacman, gameMessage);
 
         initializeCommands();
         initializeGhosts();
@@ -346,16 +355,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // Check if Pac-Man collects a power pellet
         if (maze.eatInvincibilityPellet(pacman.getX(), pacman.getY())) {
             if (pacman instanceof InvincibilityDecorator) {
-                System.out.println("TEST0");
                 ((InvincibilityDecorator) pacman).activateInvincibility();  // Activate invincibility
+                mediator.notify("Invincibility", pacman);
             }
         }
 
         if (maze.eatDoublePointsPellet(pacman.getX(), pacman.getY())) {
             IPacMan doublePointPacMan = getDoublePointDecorator(pacman);
             if (doublePointPacMan != null && doublePointPacMan instanceof DoublePointDecorator) {
-                System.out.println("TEST1");
-                ((DoublePointDecorator) doublePointPacMan).activateDoublePoints();  // Activate double points
+                mediator.notify("Double", doublePointPacMan);
             }
         }
 
@@ -404,6 +412,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         int x = getWidth() - metrics.stringWidth(scoreText) - 10; // 10 pixels from the right
         int y = metrics.getHeight(); // Height of the font
         g.drawString(scoreText, x, y);  // Draw score
+        gameMessage.render(g, x - 5, y + 15);
     }
 
     @Override
