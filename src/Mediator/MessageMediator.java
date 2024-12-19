@@ -1,10 +1,12 @@
 package Mediator;
 
 import AbstractFactory.IPacMan;
+import Bridge.DeathSound;
 import Bridge.DoubleSound;
 import Bridge.EventSound;
 import Decorator.DoublePointDecorator;
 import SoundAdapter.MP3Adapter;
+import SoundAdapter.WAWAdapter;
 import ui.GameMessage;
 
 import java.util.Objects;
@@ -38,6 +40,10 @@ public class MessageMediator implements Mediator {
         }
         else if(Objects.equals(event, "Sound Double")) {
             eventSound = new DoubleSound(new MP3Adapter(), this);
+            eventSound.play();
+        }
+        else if(Objects.equals(event, "Death Sound")) {
+            eventSound = new DeathSound(new WAWAdapter());
             eventSound.play();
         }
     }

@@ -4,6 +4,7 @@ import BuilderPattern.Maze1Builder;
 import BuilderPattern.Maze2Builder;
 import BuilderPattern.MazeBuilder;
 import BuilderPattern.MazeDirector;
+import Chain.*;
 import Decorator.DoublePointDecorator;
 import Decorator.InvincibilityDecorator;
 import Decorator.PacManDecorator;
@@ -73,6 +74,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     private GameMessage gameMessage;
     private Mediator mediator;
+    private boolean theEnd = false;
     // Score display
 
     private NetworkProxy networkProxy;
@@ -396,7 +398,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         pacman.move(maze);  // Move Pac-Man based on the current direction
-
+        GameContext context = new GameContext();
         // Use PowerUpVisitor to check for power-ups
         PowerUpVisitor powerUpVisitor = new PowerUpVisitor(pacman, maze, mediator);
         ScoreVisitor scoreVisitor = new ScoreVisitor(pacman);
@@ -420,7 +422,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
 
         if (!((InvincibilityDecorator) pacman).isInvincibilityActive()) {
-            checkCollision();  // Ignore ghost collisions when in super mode.
+            ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
+            int score = scoreCounter.getScore();
+            context.setScore(score);
+            context.setMultiplayer(isMultiplayer);
+            context.setGame(this);
+            context.setVaiduoklis(vaiduoklis);
+            context.setPacMan(pacman);
+            context.setMediator(mediator);
+            GameHandler handlerChain = initializeHandlers();
+            handlerChain.handle(context);
         }
 
         if (isMultiplayer) {
@@ -432,7 +443,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
         repaint();
     }
-
 
 
     @Override
@@ -477,33 +487,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-
-    private void checkCollision() {
-        // Collision checks with ghosts
-        for (Vaiduoklis vaiduoklis : vaiduoklis) {
-            if (vaiduoklis.collidesWith(pacman)) {
-                System.out.println("Game Over! Pac-Man has been caught by the ghost.");
-                timer.stop();  // Stop the game loop
-                notifyCollisionObservers();
-
-                // Get the score
-                ScoreCounterSingleton scoreCounter = ScoreCounterSingleton.getInstance();
-                int score = scoreCounter.getScore();
-
-                GameOverHandler handler = isMultiplayer ? new MultiplayerGameOverHandler() : new SinglePlayerGameOverHandler();
-                handler.handleGameOver(false, score, this);
-
-                //GameOverScreen.display("Game Over! Pac-Man was caught. Your score: " + scoreCounter.getScore());
-                if(isMultiplayer)
-                {
-                    networkProxy.close();
-                }
-
-                break;
-            }
-        }
+    public void endGameLogic()
+    {
+        timer.stop();
+        //notifyCollisionObservers();
+        if(isMultiplayer) {networkProxy.close();}
     }
-
 
     private void checkWinCondition() {
         if (maze.allPelletsCollected()) {
@@ -556,4 +545,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             System.out.println("No saved state to restore!");
         }
     }
+    private GameHandler initializeHandlers() {
+        GameHandler scoreUpdateHandler = new ScoreUpdateHandler();
+        GameHandler collisionHandler = new CollisionHandler();
+        GameHandler gameEndHandler = new GameEndHandler();
+        GameHandler gameEndSoundHandler = new SoundHandler();
+        scoreUpdateHandler.setNextHandler(collisionHandler);
+        collisionHandler.setNextHandler(gameEndHandler);
+        gameEndHandler.setNextHandler(gameEndSoundHandler);
+
+        return scoreUpdateHandler;
+    }
+
 }

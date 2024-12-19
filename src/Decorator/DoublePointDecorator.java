@@ -16,7 +16,7 @@ public class DoublePointDecorator extends PacManDecorator {
     private boolean doublePointsActive;
     private long doublePointsEndTime;
     private static final long DEFAULT_DOUBLE_POINTS_DURATION = 10000; // Default duration: 10 seconds
-    Mediator soundMediator;
+    Mediator mediator;
     public DoublePointDecorator(IPacMan decoratedPacMan) {
         super(decoratedPacMan);
         this.doublePointsActive = false;
@@ -89,15 +89,15 @@ public class DoublePointDecorator extends PacManDecorator {
 
     // Activate double points mode for a set duration (default 10 seconds)
     public void activateDoublePoints(Mediator m) {
-        soundMediator = new MessageMediator();
-        soundMediator.notify("Sound Double", decoratedPacMan);
-        activateDoublePoints(DEFAULT_DOUBLE_POINTS_DURATION, m);
+        this.mediator = m;
+        mediator.notify("Sound Double", decoratedPacMan);
+        activateDoublePoints(DEFAULT_DOUBLE_POINTS_DURATION);
     }
 
-    public void activateDoublePoints(long duration, Mediator m) {
+    public void activateDoublePoints(long duration) {
         this.doublePointsActive = true;
         this.doublePointsEndTime = System.currentTimeMillis() + duration;
-        m.notify("Double message", decoratedPacMan);
+        mediator.notify("Double message", decoratedPacMan);
     }
 
     public boolean isDoublePointsActive() {
