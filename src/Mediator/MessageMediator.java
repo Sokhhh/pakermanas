@@ -46,5 +46,9 @@ public class MessageMediator implements Mediator {
             eventSound = new DeathSound(new WAWAdapter());
             eventSound.play();
         }
+        else if(Objects.equals(event, "Sound good"))
+        {
+            System.out.println("Sound activated");
+        }
     }
 }

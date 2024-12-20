@@ -13,5 +13,6 @@ public class DoubleSound extends EventSound {
     @Override
     public void play() {
         player.play("sounds/double.mp3");
+        mediator.notify("Sound double good", this.mediator);
     }
 }
